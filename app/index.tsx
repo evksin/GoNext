@@ -12,7 +12,7 @@ export default function HomeScreen() {
       </Appbar.Header>
 
       <View style={styles.content}>
-        <Text variant="titleMedium">Привет, React Native Paper!</Text>
+        <Text variant="titleMedium">Привет, Юрий!</Text>
         <Button
           mode="contained"
           onPress={() => setSnackbarVisible(true)}
