@@ -24,6 +24,14 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
+  const resetForm = useCallback(() => {
+    setName('');
+    setDescription('');
+    setVisitLater(true);
+    setLiked(false);
+    setCoordinates('');
+  }, []);
+
   const loadPlace = useCallback(async () => {
     if (!placeId) {
       return;
@@ -49,8 +57,12 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   }, [placeId]);
 
   useEffect(() => {
+    if (!placeId) {
+      resetForm();
+      return;
+    }
     loadPlace();
-  }, [loadPlace]);
+  }, [loadPlace, placeId, resetForm]);
 
   const handleSave = async () => {
     const trimmedName = name.trim();
