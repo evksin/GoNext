@@ -17,8 +17,9 @@ import { Place } from '../../../src/models/types';
 
 export default function TripAddPlacesScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ id?: string }>();
-  const tripId = params.id ? Number(params.id) : null;
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const tripId = rawId ? Number(rawId) : null;
 
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
