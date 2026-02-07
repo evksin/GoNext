@@ -21,6 +21,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   const [visitLater, setVisitLater] = useState(true);
   const [liked, setLiked] = useState(false);
   const [coordinates, setCoordinates] = useState('');
+  const [coordsDirty, setCoordsDirty] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -30,6 +31,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
     setVisitLater(true);
     setLiked(false);
     setCoordinates('');
+    setCoordsDirty(false);
   }, []);
 
   const loadPlace = useCallback(async () => {
@@ -51,6 +53,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       } else {
         setCoordinates('');
       }
+      setCoordsDirty(false);
     } catch {
       setMessage('Не удалось загрузить место.');
     }
@@ -129,7 +132,15 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       <TextInput
         label="Координаты (DD)"
         value={coordinates}
-        onChangeText={setCoordinates}
+        onChangeText={(value) => {
+          setCoordinates(value);
+          setCoordsDirty(true);
+        }}
+        onFocus={() => {
+          if (!placeId && !coordsDirty) {
+            setCoordinates('');
+          }
+        }}
         mode="outlined"
         placeholder="55.7558, 37.6176"
         autoCorrect={false}
