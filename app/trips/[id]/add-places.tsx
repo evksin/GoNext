@@ -24,12 +24,15 @@ export default function TripAddPlacesScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
   const [statusText, setStatusText] = useState('');
+  const buildMarker = 'build:2026-02-07-1';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
       setMessage('Некорректный идентификатор поездки.');
+      setStatusText(`${buildMarker} | tripId=invalid`);
       return;
     }
+    setStatusText(`${buildMarker} | tripId=${tripId}`);
     try {
       const [allPlaces, tripPlaces] = await Promise.all([
         listPlaces(),
@@ -40,6 +43,7 @@ export default function TripAddPlacesScreen() {
       setSelectedIds(new Set());
     } catch {
       setMessage('Не удалось загрузить места.');
+      setStatusText(`${buildMarker} | tripId=${tripId} | load error`);
     }
   }, [tripId]);
 
