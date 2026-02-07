@@ -132,6 +132,11 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         onChangeText={setCoordinates}
         mode="outlined"
         placeholder="55.7558, 37.6176"
+        autoCorrect={false}
+        autoCapitalize="none"
+        autoComplete="off"
+        textContentType="none"
+        importantForAutofill="no"
       />
 
       <Button
