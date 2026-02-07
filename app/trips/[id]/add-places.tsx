@@ -66,6 +66,8 @@ export default function TripAddPlacesScreen() {
     });
   };
 
+  const isSelected = (id: number) => selectedIds.has(id);
+
   const handleAdd = async () => {
     if (!tripId || Number.isNaN(tripId)) {
       setMessage('Некорректный идентификатор поездки.');
@@ -117,7 +119,7 @@ export default function TripAddPlacesScreen() {
           {places.length > 0 && (
             <List.Section>
               {places.map((place) => {
-                const checked = selectedIds.has(place.id);
+                const checked = isSelected(place.id);
                 return (
                   <List.Item
                     key={place.id}
@@ -126,7 +128,7 @@ export default function TripAddPlacesScreen() {
                     onPress={() => togglePlace(place.id)}
                     left={() => (
                       <Checkbox
-                        status={checked ? 'checked' : 'unchecked'}
+                        status={isSelected(place.id) ? 'checked' : 'unchecked'}
                         onPress={() => togglePlace(place.id)}
                       />
                     )}
