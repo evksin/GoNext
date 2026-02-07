@@ -75,6 +75,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         liked,
         ddLat: parsed?.lat ?? null,
         ddLng: parsed?.lng ?? null,
+        ddText: coordinates.trim() ? coordinates.trim() : null,
         photos: [],
       });
       onSaved();

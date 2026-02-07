@@ -6,6 +6,7 @@ export type Place = {
   liked: boolean;
   ddLat: number | null;
   ddLng: number | null;
+  ddText: string | null;
   photos: string[];
   createdAt: string;
 };

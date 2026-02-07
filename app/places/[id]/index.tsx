@@ -52,11 +52,12 @@ export default function PlaceDetailsScreen() {
   );
 
   const handleOpenMap = async () => {
-    if (!place || place.ddLat == null || place.ddLng == null) {
+    const coords = getPlaceCoordinates(place);
+    if (!coords) {
       setMessage('Координаты не указаны.');
       return;
     }
-    const url = `https://www.google.com/maps?q=${place.ddLat},${place.ddLng}`;
+    const url = `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
     try {
       await Linking.openURL(url);
     } catch {
@@ -100,12 +101,7 @@ export default function PlaceDetailsScreen() {
                   Хочу посетить: {place.visitLater ? 'да' : 'нет'}
                 </Text>
                 <Text>Понравилось: {place.liked ? 'да' : 'нет'}</Text>
-                <Text>
-                  Координаты:{' '}
-                  {place.ddLat != null && place.ddLng != null
-                    ? `${place.ddLat}, ${place.ddLng}`
-                    : 'не указаны'}
-                </Text>
+                <Text>Координаты: {formatCoordinates(place)}</Text>
                 <Text>Создано: {new Date(place.createdAt).toLocaleString()}</Text>
               </Card.Content>
               <Card.Actions style={styles.cardActions}>
@@ -158,6 +154,36 @@ export default function PlaceDetailsScreen() {
     </ScreenBackground>
   );
 }
+
+const getPlaceCoordinates = (
+  place: Place | null
+): { lat: number; lng: number } | null => {
+  if (!place) {
+    return null;
+  }
+  if (place.ddLat != null && place.ddLng != null) {
+    return { lat: place.ddLat, lng: place.ddLng };
+  }
+  if (place.ddText) {
+    const matches = place.ddText.match(/-?\d+(?:[.,]\d+)?/g);
+    if (matches && matches.length >= 2) {
+      const lat = Number(matches[0].replace(',', '.'));
+      const lng = Number(matches[1].replace(',', '.'));
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+        return { lat, lng };
+      }
+    }
+  }
+  return null;
+};
+
+const formatCoordinates = (place: Place | null): string => {
+  const coords = getPlaceCoordinates(place);
+  if (!coords) {
+    return 'не указаны';
+  }
+  return `${coords.lat}, ${coords.lng}`;
+};
 
 const styles = StyleSheet.create({
   screen: {

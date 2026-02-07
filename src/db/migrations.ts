@@ -19,6 +19,7 @@ export const migrations: Migration[] = [
         liked INTEGER NOT NULL DEFAULT 0,
         dd_lat REAL,
         dd_lng REAL,
+        dd_text TEXT,
         photos TEXT,
         createdAt TEXT NOT NULL
       );

@@ -9,6 +9,7 @@ type PlaceRow = {
   liked: number;
   dd_lat: number | null;
   dd_lng: number | null;
+  dd_text: string | null;
   photos: string | null;
   createdAt: string;
 };
@@ -33,6 +34,7 @@ const mapPlace = (row: PlaceRow): Place => ({
   liked: row.liked === 1,
   ddLat: row.dd_lat,
   ddLng: row.dd_lng,
+  ddText: row.dd_text,
   photos: parsePhotos(row.photos),
   createdAt: row.createdAt,
 });
@@ -62,6 +64,7 @@ export const savePlace = async (place: {
   liked: boolean;
   ddLat: number | null;
   ddLng: number | null;
+  ddText: string | null;
   photos: string[];
 }): Promise<number> => {
   const db = await getDb();
@@ -72,7 +75,7 @@ export const savePlace = async (place: {
       `
         UPDATE place
         SET name = ?, description = ?, visitLater = ?, liked = ?,
-            dd_lat = ?, dd_lng = ?, photos = ?
+            dd_lat = ?, dd_lng = ?, dd_text = ?, photos = ?
         WHERE id = ?;
       `,
       [
@@ -82,6 +85,7 @@ export const savePlace = async (place: {
         place.liked ? 1 : 0,
         place.ddLat,
         place.ddLng,
+        place.ddText,
         photosJson,
         place.id,
       ]
@@ -93,8 +97,8 @@ export const savePlace = async (place: {
   const result = await db.runAsync(
     `
       INSERT INTO place
-        (name, description, visitLater, liked, dd_lat, dd_lng, photos, createdAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+        (name, description, visitLater, liked, dd_lat, dd_lng, dd_text, photos, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     `,
     [
       place.name,
@@ -103,6 +107,7 @@ export const savePlace = async (place: {
       place.liked ? 1 : 0,
       place.ddLat,
       place.ddLng,
+      place.ddText,
       photosJson,
       createdAt,
     ]

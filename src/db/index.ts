@@ -76,4 +76,7 @@ const ensurePlaceCoordinatesColumns = async (
   if (!names.has('dd_lng')) {
     await db.execAsync('ALTER TABLE place ADD COLUMN dd_lng REAL;');
   }
+  if (!names.has('dd_text')) {
+    await db.execAsync('ALTER TABLE place ADD COLUMN dd_text TEXT;');
+  }
 };
