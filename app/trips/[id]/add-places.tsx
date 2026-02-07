@@ -23,7 +23,6 @@ export default function TripAddPlacesScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
-  const [debugInfo, setDebugInfo] = useState('');
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -74,9 +73,6 @@ export default function TripAddPlacesScreen() {
       const beforeCount = (await listTripPlaces(tripId)).length;
       await Promise.all(ids.map((id) => addPlaceToTrip(tripId, id)));
       const afterCount = (await listTripPlaces(tripId)).length;
-      setDebugInfo(
-        `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}`
-      );
       if (afterCount <= beforeCount) {
         setMessage('Места не добавлены. Попробуйте ещё раз.');
         return;
@@ -125,7 +121,6 @@ export default function TripAddPlacesScreen() {
 
         <View style={styles.actions}>
           <Text>Выбрано: {selectedIds.size}</Text>
-          {debugInfo ? <Text>DEBUG: {debugInfo}</Text> : null}
           <Button
             mode="contained"
             onPress={handleAdd}

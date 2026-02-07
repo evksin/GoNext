@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import {
   Appbar,
   Button,
@@ -24,6 +25,7 @@ import {
   updateTripPlace,
 } from '../../../src/data/trips';
 import { Place, Trip, TripPlace } from '../../../src/models/types';
+import { savePhotoToAppStorage } from '../../../src/services/storage';
 
 type TripPlaceView = TripPlace & {
   place?: Place | null;
@@ -43,7 +45,7 @@ export default function TripDetailsScreen() {
   const [noteDialog, setNoteDialog] = useState<{
     id: number;
     notes: string;
-    photos: string;
+    photos: string[];
   } | null>(null);
 
   const loadTrip = useCallback(async () => {
@@ -100,7 +102,7 @@ export default function TripDetailsScreen() {
     setNoteDialog({
       id: item.id,
       notes: item.notes ?? '',
-      photos: (item.photos ?? []).join(', '),
+      photos: item.photos ?? [],
     });
   };
 
@@ -108,16 +110,41 @@ export default function TripDetailsScreen() {
     if (!noteDialog) {
       return;
     }
-    const photos = noteDialog.photos
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
     await updateTripPlace(noteDialog.id, {
       notes: noteDialog.notes.trim() ? noteDialog.notes.trim() : null,
-      photos,
+      photos: noteDialog.photos,
     });
     setNoteDialog(null);
     loadTrip();
+  };
+
+  const handleAddPhoto = async () => {
+    if (!noteDialog) {
+      return;
+    }
+    if (Platform.OS === 'web') {
+      setMessage('Камера недоступна в веб-версии.');
+      return;
+    }
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      setMessage('Нет доступа к камере.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.8,
+    });
+    if (result.canceled || result.assets.length === 0) {
+      return;
+    }
+    try {
+      const savedPath = await savePhotoToAppStorage(result.assets[0].uri);
+      setNoteDialog((prev) =>
+        prev ? { ...prev, photos: [...prev.photos, savedPath] } : prev
+      );
+    } catch {
+      setMessage('Не удалось сохранить фото.');
+    }
   };
 
   const handleRemove = async (id: number) => {
@@ -139,7 +166,7 @@ export default function TripDetailsScreen() {
           )}
         </Appbar.Header>
 
-        <View style={styles.content}>
+        <ScrollView contentContainerStyle={styles.content}>
           {trip && (
             <Card style={styles.tripCard}>
               <Card.Title title={trip.title} />
@@ -194,12 +221,23 @@ export default function TripDetailsScreen() {
                     />
                   </View>
                   <Text>
-                    Дата визита: {item.visitDate ?? '—'}
+                    Дата визита: {formatDateTime(item.visitDate)}
                   </Text>
                   <Text>Заметки: {item.notes ?? 'нет'}</Text>
-                  <Text>
-                    Фото: {item.photos.length > 0 ? item.photos.length : 'нет'}
-                  </Text>
+                  <Text>Фото:</Text>
+                  {item.photos.length > 0 ? (
+                    <View style={styles.photos}>
+                      {item.photos.map((photo, photoIndex) => (
+                        <Image
+                          key={`${item.id}-photo-${photoIndex}`}
+                          source={{ uri: photo }}
+                          style={styles.photoThumb}
+                        />
+                      ))}
+                    </View>
+                  ) : (
+                    <Text>нет</Text>
+                  )}
                 </Card.Content>
                 <Card.Actions style={styles.cardActions}>
                   <Button mode="outlined" onPress={() => openNotes(item)}>
@@ -212,10 +250,13 @@ export default function TripDetailsScreen() {
               </Card>
             ))}
           </List.Section>
-        </View>
+        </ScrollView>
 
         <Portal>
-          <Dialog visible={Boolean(noteDialog)} onDismiss={() => setNoteDialog(null)}>
+          <Dialog
+            visible={Boolean(noteDialog)}
+            onDismiss={() => setNoteDialog(null)}
+          >
             <Dialog.Title>Заметки и фото</Dialog.Title>
             <Dialog.Content>
               <TextInput
@@ -228,14 +269,22 @@ export default function TripDetailsScreen() {
                 multiline
                 style={styles.dialogInput}
               />
-              <TextInput
-                label="Фото (URL через запятую)"
-                value={noteDialog?.photos ?? ''}
-                onChangeText={(value) =>
-                  setNoteDialog((prev) => (prev ? { ...prev, photos: value } : prev))
-                }
-                mode="outlined"
-              />
+              <Button mode="outlined" onPress={handleAddPhoto}>
+                Сделать фото
+              </Button>
+              {noteDialog && noteDialog.photos.length > 0 ? (
+                <View style={styles.photos}>
+                  {noteDialog.photos.map((photo, photoIndex) => (
+                    <Image
+                      key={`dialog-photo-${photoIndex}`}
+                      source={{ uri: photo }}
+                      style={styles.photoThumb}
+                    />
+                  ))}
+                </View>
+              ) : (
+                <Text>Фото не добавлены.</Text>
+              )}
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={() => setNoteDialog(null)}>Отмена</Button>
@@ -261,8 +310,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
     padding: 16,
+    paddingBottom: 32,
   },
   tripCard: {
     marginBottom: 16,
@@ -289,4 +338,23 @@ const styles = StyleSheet.create({
   dialogInput: {
     marginBottom: 12,
   },
+  photos: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+    marginTop: 4,
+  },
+  photoThumb: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+  },
 });
+
+const formatDateTime = (value: string | null): string => {
+  if (!value) {
+    return '—';
+  }
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
+};
