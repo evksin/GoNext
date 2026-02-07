@@ -25,6 +25,7 @@ export default function TripAddPlacesScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
   const [statusText, setStatusText] = useState('');
+  const [addedSuccess, setAddedSuccess] = useState(false);
   const buildMarker = 'build:2026-02-07-2';
 
   const loadData = useCallback(async () => {
@@ -95,7 +96,7 @@ export default function TripAddPlacesScreen() {
       setStatusText(
         `Успешно: tripId=${tripId}, до=${beforeCount}, после=${afterCount}`
       );
-      router.replace(`/trips/${tripId}`);
+      setAddedSuccess(true);
     } catch (error) {
       console.error('Add places failed:', error);
       const details = error instanceof Error ? error.message : 'unknown';
@@ -142,6 +143,11 @@ export default function TripAddPlacesScreen() {
         <View style={styles.actions}>
           <Text>Выбрано: {selectedIds.size}</Text>
           {statusText ? <Text>{statusText}</Text> : null}
+          {addedSuccess && (
+            <Button mode="outlined" onPress={() => router.replace(`/trips/${tripId}`)}>
+              Готово
+            </Button>
+          )}
           <Button
             mode="contained"
             onPress={handleAdd}
