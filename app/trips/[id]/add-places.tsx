@@ -23,6 +23,7 @@ export default function TripAddPlacesScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
+  const [statusText, setStatusText] = useState('');
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -62,6 +63,7 @@ export default function TripAddPlacesScreen() {
 
   const handleAdd = async () => {
     if (!tripId || Number.isNaN(tripId)) {
+      setMessage('Некорректный идентификатор поездки.');
       return;
     }
     try {
@@ -70,7 +72,11 @@ export default function TripAddPlacesScreen() {
         setMessage('Выберите хотя бы одно место.');
         return;
       }
+      setStatusText(`tripId=${tripId}, выбранные=${ids.length}`);
       const beforeCount = (await listTripPlaces(tripId)).length;
+      setStatusText(
+        `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}`
+      );
       await Promise.all(ids.map((id) => addPlaceToTrip(tripId, id)));
       const afterCount = (await listTripPlaces(tripId)).length;
       if (afterCount <= beforeCount) {
@@ -79,11 +85,14 @@ export default function TripAddPlacesScreen() {
         );
         return;
       }
+      setStatusText(
+        `Успешно: tripId=${tripId}, до=${beforeCount}, после=${afterCount}`
+      );
       router.replace(`/trips/${tripId}`);
     } catch (error) {
       console.error('Add places failed:', error);
       const details = error instanceof Error ? error.message : 'unknown';
-      setDebugInfo(`tripId=${tripId}, ошибка=${details}`);
+      setStatusText(`Ошибка: tripId=${tripId}, ${details}`);
       setMessage('Не удалось добавить места.');
     }
   };
@@ -123,6 +132,7 @@ export default function TripAddPlacesScreen() {
 
         <View style={styles.actions}>
           <Text>Выбрано: {selectedIds.size}</Text>
+          {statusText ? <Text>{statusText}</Text> : null}
           <Button
             mode="contained"
             onPress={handleAdd}
