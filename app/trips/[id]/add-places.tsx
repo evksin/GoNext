@@ -1,0 +1,144 @@
+import { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import {
+  Appbar,
+  Button,
+  Checkbox,
+  List,
+  Snackbar,
+  Text,
+} from 'react-native-paper';
+
+import { ScreenBackground } from '../../../src/components/ScreenBackground';
+import { listPlaces } from '../../../src/data/places';
+import { addPlaceToTrip, listTripPlaces } from '../../../src/data/trips';
+import { Place } from '../../../src/models/types';
+
+export default function TripAddPlacesScreen() {
+  const router = useRouter();
+  const params = useLocalSearchParams<{ id?: string }>();
+  const tripId = params.id ? Number(params.id) : null;
+
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [message, setMessage] = useState('');
+
+  const loadData = useCallback(async () => {
+    if (!tripId || Number.isNaN(tripId)) {
+      setMessage('Некорректный идентификатор поездки.');
+      return;
+    }
+    try {
+      const [allPlaces, tripPlaces] = await Promise.all([
+        listPlaces(),
+        listTripPlaces(tripId),
+      ]);
+      const existing = new Set(tripPlaces.map((item) => item.placeId));
+      setPlaces(allPlaces.filter((place) => !existing.has(place.id)));
+      setSelectedIds(new Set());
+    } catch {
+      setMessage('Не удалось загрузить места.');
+    }
+  }, [tripId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
+
+  const togglePlace = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleAdd = async () => {
+    if (!tripId || Number.isNaN(tripId)) {
+      return;
+    }
+    try {
+      for (const id of selectedIds) {
+        await addPlaceToTrip(tripId, id);
+      }
+      router.back();
+    } catch {
+      setMessage('Не удалось добавить места.');
+    }
+  };
+
+  return (
+    <ScreenBackground>
+      <View style={styles.screen}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.Content title="Добавить места" />
+        </Appbar.Header>
+
+        <View style={styles.content}>
+          {places.length === 0 && <Text>Нет доступных мест.</Text>}
+          {places.length > 0 && (
+            <List.Section>
+              {places.map((place) => {
+                const checked = selectedIds.has(place.id);
+                return (
+                  <List.Item
+                    key={place.id}
+                    title={place.name}
+                    description={place.description ?? 'Без описания'}
+                    onPress={() => togglePlace(place.id)}
+                    left={() => (
+                      <Checkbox
+                        status={checked ? 'checked' : 'unchecked'}
+                        onPress={() => togglePlace(place.id)}
+                      />
+                    )}
+                  />
+                );
+              })}
+            </List.Section>
+          )}
+        </View>
+
+        <View style={styles.actions}>
+          <Text>Выбрано: {selectedIds.size}</Text>
+          <Button
+            mode="contained"
+            onPress={handleAdd}
+            disabled={selectedIds.size === 0}
+          >
+            Добавить выбранные
+          </Button>
+        </View>
+
+        <Snackbar
+          visible={Boolean(message)}
+          onDismiss={() => setMessage('')}
+          duration={2500}
+        >
+          {message}
+        </Snackbar>
+      </View>
+    </ScreenBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+  actions: {
+    padding: 16,
+  },
+});

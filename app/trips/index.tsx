@@ -1,11 +1,32 @@
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Appbar, Text } from 'react-native-paper';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Appbar, FAB, List, Text } from 'react-native-paper';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
+import { listTrips } from '../../src/data/trips';
+import { Trip } from '../../src/models/types';
 
 export default function TripsScreen() {
   const router = useRouter();
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadTrips = useCallback(async () => {
+    setError(null);
+    try {
+      const data = await listTrips();
+      setTrips(data);
+    } catch {
+      setError('Не удалось загрузить поездки.');
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTrips();
+    }, [loadTrips])
+  );
 
   return (
     <ScreenBackground>
@@ -13,11 +34,29 @@ export default function TripsScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Поездки" />
+          <Appbar.Action icon="plus" onPress={() => router.push('/trips/new')} />
         </Appbar.Header>
 
         <View style={styles.content}>
-          <Text>Экран поездок будет добавлен позже.</Text>
+          {error && <Text>{error}</Text>}
+          {!error && trips.length === 0 && <Text>Поездок пока нет.</Text>}
+          {!error && trips.length > 0 && (
+            <List.Section>
+              {trips.map((trip) => (
+                <List.Item
+                  key={trip.id}
+                  title={trip.title}
+                  description={
+                    trip.description ?? (trip.current ? 'Текущая поездка' : '')
+                  }
+                  onPress={() => router.push(`/trips/${trip.id}`)}
+                />
+              ))}
+            </List.Section>
+          )}
         </View>
+
+        <FAB icon="plus" style={styles.fab} onPress={() => router.push('/trips/new')} />
       </View>
     </ScreenBackground>
   );
@@ -32,5 +71,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
+    width: '100%',
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 24,
   },
 });
