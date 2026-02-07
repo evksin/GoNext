@@ -11,6 +11,7 @@ import {
 
 import { listPlaces } from '../../src/data/places';
 import { Place } from '../../src/models/types';
+import { ScreenBackground } from '../../src/components/ScreenBackground';
 
 export default function PlacesListScreen() {
   const router = useRouter();
@@ -38,45 +39,47 @@ export default function PlacesListScreen() {
   );
 
   return (
-    <View style={styles.screen}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Места" />
-        <Appbar.Action
+    <ScreenBackground>
+      <View style={styles.screen}>
+        <Appbar.Header>
+          <Appbar.BackAction onPress={() => router.back()} />
+          <Appbar.Content title="Места" />
+          <Appbar.Action
+            icon="plus"
+            onPress={() => router.push('/places/new')}
+          />
+        </Appbar.Header>
+
+        <View style={styles.content}>
+          {loading && <ActivityIndicator />}
+
+          {!loading && error && <Text>{error}</Text>}
+
+          {!loading && !error && places.length === 0 && (
+            <Text>Пока нет сохранённых мест.</Text>
+          )}
+
+          {!loading && !error && places.length > 0 && (
+            <List.Section>
+              {places.map((place) => (
+                <List.Item
+                  key={place.id}
+                  title={place.name}
+                  description={place.description ?? 'Без описания'}
+                  onPress={() => router.push(`/places/${place.id}`)}
+                />
+              ))}
+            </List.Section>
+          )}
+        </View>
+
+        <FAB
           icon="plus"
+          style={styles.fab}
           onPress={() => router.push('/places/new')}
         />
-      </Appbar.Header>
-
-      <View style={styles.content}>
-        {loading && <ActivityIndicator />}
-
-        {!loading && error && <Text>{error}</Text>}
-
-        {!loading && !error && places.length === 0 && (
-          <Text>Пока нет сохранённых мест.</Text>
-        )}
-
-        {!loading && !error && places.length > 0 && (
-          <List.Section>
-            {places.map((place) => (
-              <List.Item
-                key={place.id}
-                title={place.name}
-                description={place.description ?? 'Без описания'}
-                onPress={() => router.push(`/places/${place.id}`)}
-              />
-            ))}
-          </List.Section>
-        )}
       </View>
-
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={() => router.push('/places/new')}
-      />
-    </View>
+    </ScreenBackground>
   );
 }
 

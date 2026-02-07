@@ -1,10 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Appbar, Text } from 'react-native-paper';
+import { Appbar } from 'react-native-paper';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
+import { PlaceForm } from '../../src/screens/PlaceForm';
 
-export default function TripsScreen() {
+export default function PlaceCreateScreen() {
   const router = useRouter();
 
   return (
@@ -12,12 +13,10 @@ export default function TripsScreen() {
       <View style={styles.screen}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Поездки" />
+          <Appbar.Content title="Новое место" />
         </Appbar.Header>
 
-        <View style={styles.content}>
-          <Text>Экран поездок будет добавлен позже.</Text>
-        </View>
+        <PlaceForm onSaved={() => router.back()} />
       </View>
     </ScreenBackground>
   );
@@ -26,11 +25,5 @@ export default function TripsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
   },
 });
