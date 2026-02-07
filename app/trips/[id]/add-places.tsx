@@ -74,7 +74,9 @@ export default function TripAddPlacesScreen() {
       await Promise.all(ids.map((id) => addPlaceToTrip(tripId, id)));
       const afterCount = (await listTripPlaces(tripId)).length;
       if (afterCount <= beforeCount) {
-        setMessage('Места не добавлены. Попробуйте ещё раз.');
+        setMessage(
+          `Места не добавлены. tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}`
+        );
         return;
       }
       router.replace(`/trips/${tripId}`);

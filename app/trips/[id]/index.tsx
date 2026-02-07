@@ -432,13 +432,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tripActions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    alignItems: 'stretch',
     gap: 8,
   },
   tripActionButton: {
-    flex: 1,
-    minWidth: 140,
+    width: '100%',
   },
   tripActionContent: {
     paddingVertical: 6,
