@@ -25,7 +25,7 @@ export default function TripAddPlacesScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
   const [statusText, setStatusText] = useState('');
-  const buildMarker = 'build:2026-02-07-1';
+  const buildMarker = 'build:2026-02-07-2';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -111,6 +111,8 @@ export default function TripAddPlacesScreen() {
         </Appbar.Header>
 
         <View style={styles.content}>
+          <Text>{buildMarker}</Text>
+          <Text>tripId: {rawId ?? 'нет'}</Text>
           {places.length === 0 && <Text>Нет доступных мест.</Text>}
           {places.length > 0 && (
             <List.Section>
