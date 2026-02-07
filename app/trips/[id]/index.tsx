@@ -19,6 +19,7 @@ import {
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
 import { getPlaceById } from '../../../src/data/places';
 import {
+  deleteTrip,
   getTripById,
   listTripPlaces,
   removeTripPlace,
@@ -48,6 +49,7 @@ export default function TripDetailsScreen() {
     photos: string[];
   } | null>(null);
   const [fullScreenPhoto, setFullScreenPhoto] = useState<string | null>(null);
+  const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
 
   const loadTrip = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -168,6 +170,18 @@ export default function TripDetailsScreen() {
     loadTrip();
   };
 
+  const handleDeleteTrip = async () => {
+    if (!trip) {
+      return;
+    }
+    try {
+      await deleteTrip(trip.id);
+      router.replace('/trips');
+    } catch {
+      setMessage('Не удалось удалить поездку.');
+    }
+  };
+
   return (
     <ScreenBackground>
       <View style={styles.screen}>
@@ -192,12 +206,24 @@ export default function TripDetailsScreen() {
                 <Text>Окончание: {trip.endDate ?? 'не указано'}</Text>
                 <Text>Текущая: {trip.current ? 'да' : 'нет'}</Text>
               </Card.Content>
-              <Card.Actions>
+              <Card.Actions style={styles.tripActions}>
                 <Button
                   mode="contained"
                   onPress={() => router.push(`/trips/${trip.id}/add-places`)}
+                  style={styles.tripActionButton}
+                  contentStyle={styles.tripActionContent}
+                  labelStyle={styles.tripActionLabel}
                 >
                   Добавить места
+                </Button>
+                <Button
+                  mode="outlined"
+                  onPress={() => setDeleteDialogVisible(true)}
+                  style={styles.tripActionButton}
+                  contentStyle={styles.tripActionContent}
+                  labelStyle={styles.tripActionLabel}
+                >
+                  Удалить поездку
                 </Button>
               </Card.Actions>
             </Card>
@@ -325,6 +351,31 @@ export default function TripDetailsScreen() {
           </Dialog>
         </Portal>
 
+        <Portal>
+          <Dialog
+            visible={deleteDialogVisible}
+            onDismiss={() => setDeleteDialogVisible(false)}
+          >
+            <Dialog.Title>Удалить поездку?</Dialog.Title>
+            <Dialog.Content>
+              <Text>Все места в маршруте будут удалены.</Text>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={() => setDeleteDialogVisible(false)}>
+                Отмена
+              </Button>
+              <Button
+                onPress={async () => {
+                  setDeleteDialogVisible(false);
+                  await handleDeleteTrip();
+                }}
+              >
+                Удалить
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+
         <Snackbar
           visible={Boolean(message)}
           onDismiss={() => setMessage('')}
@@ -379,6 +430,21 @@ const styles = StyleSheet.create({
   cardActions: {
     flexWrap: 'wrap',
     gap: 8,
+  },
+  tripActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  tripActionButton: {
+    flex: 1,
+    minWidth: 140,
+  },
+  tripActionContent: {
+    paddingVertical: 6,
+  },
+  tripActionLabel: {
+    textAlign: 'center',
   },
   cardRight: {
     flexDirection: 'row',
