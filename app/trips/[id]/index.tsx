@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import {
@@ -47,6 +47,7 @@ export default function TripDetailsScreen() {
     notes: string;
     photos: string[];
   } | null>(null);
+  const [fullScreenPhoto, setFullScreenPhoto] = useState<string | null>(null);
 
   const loadTrip = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -147,6 +148,15 @@ export default function TripDetailsScreen() {
     }
   };
 
+  const handleRemovePhoto = (uri: string) => {
+    setNoteDialog((prev) => {
+      if (!prev) {
+        return prev;
+      }
+      return { ...prev, photos: prev.photos.filter((photo) => photo !== uri) };
+    });
+  };
+
   const handleRemove = async (id: number) => {
     await removeTripPlace(id);
     loadTrip();
@@ -228,11 +238,15 @@ export default function TripDetailsScreen() {
                   {item.photos.length > 0 ? (
                     <View style={styles.photos}>
                       {item.photos.map((photo, photoIndex) => (
-                        <Image
+                        <Pressable
                           key={`${item.id}-photo-${photoIndex}`}
-                          source={{ uri: photo }}
-                          style={styles.photoThumb}
-                        />
+                          onPress={() => setFullScreenPhoto(photo)}
+                        >
+                          <Image
+                            source={{ uri: photo }}
+                            style={styles.photoThumb}
+                          />
+                        </Pressable>
                       ))}
                     </View>
                   ) : (
@@ -275,11 +289,16 @@ export default function TripDetailsScreen() {
               {noteDialog && noteDialog.photos.length > 0 ? (
                 <View style={styles.photos}>
                   {noteDialog.photos.map((photo, photoIndex) => (
-                    <Image
-                      key={`dialog-photo-${photoIndex}`}
-                      source={{ uri: photo }}
-                      style={styles.photoThumb}
-                    />
+                    <View key={`dialog-photo-${photoIndex}`} style={styles.photoItem}>
+                      <Pressable onPress={() => setFullScreenPhoto(photo)}>
+                        <Image source={{ uri: photo }} style={styles.photoThumb} />
+                      </Pressable>
+                      <IconButton
+                        icon="close-circle"
+                        size={18}
+                        onPress={() => handleRemovePhoto(photo)}
+                      />
+                    </View>
                   ))}
                 </View>
               ) : (
@@ -300,6 +319,28 @@ export default function TripDetailsScreen() {
         >
           {message}
         </Snackbar>
+
+        <Modal
+          visible={Boolean(fullScreenPhoto)}
+          transparent
+          onRequestClose={() => setFullScreenPhoto(null)}
+        >
+          <View style={styles.fullScreenBackdrop}>
+            <Pressable
+              style={styles.fullScreenClose}
+              onPress={() => setFullScreenPhoto(null)}
+            >
+              <Text style={styles.fullScreenCloseText}>Закрыть</Text>
+            </Pressable>
+            {fullScreenPhoto && (
+              <Image
+                source={{ uri: fullScreenPhoto }}
+                style={styles.fullScreenImage}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </Modal>
       </View>
     </ScreenBackground>
   );
@@ -344,10 +385,33 @@ const styles = StyleSheet.create({
     gap: 4,
     marginTop: 4,
   },
+  photoItem: {
+    alignItems: 'center',
+  },
   photoThumb: {
     width: 64,
     height: 64,
     borderRadius: 8,
+  },
+  fullScreenBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullScreenImage: {
+    width: '100%',
+    height: '100%',
+  },
+  fullScreenClose: {
+    position: 'absolute',
+    top: 40,
+    right: 16,
+    padding: 8,
+    zIndex: 1,
+  },
+  fullScreenCloseText: {
+    color: '#ffffff',
   },
 });
 
