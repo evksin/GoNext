@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ActivityIndicator, PaperProvider } from 'react-native-paper';
 
@@ -16,8 +16,10 @@ export default function RootLayout() {
 
     const bootstrap = async () => {
       try {
+        if (Platform.OS !== 'web') {
         await initDb();
         await ensureAppDirectories();
+        }
       } catch (error) {
         console.error('Init error:', error);
       } finally {

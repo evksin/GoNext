@@ -1,17 +1,29 @@
-import * as SQLite from 'expo-sqlite';
+import { Platform } from 'react-native';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { migrations } from './migrations';
 
-let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
+let dbPromise: Promise<SQLiteDatabase> | null = null;
 
-export const getDb = async (): Promise<SQLite.SQLiteDatabase> => {
+const openDatabase = async (): Promise<SQLiteDatabase> => {
+  if (Platform.OS === 'web') {
+    throw new Error('SQLite не поддерживается в браузере.');
+  }
+  const SQLite = await import('expo-sqlite');
+  return SQLite.openDatabaseAsync('gonext.db');
+};
+
+export const getDb = async (): Promise<SQLiteDatabase> => {
   if (!dbPromise) {
-    dbPromise = SQLite.openDatabaseAsync('gonext.db');
+    dbPromise = openDatabase();
   }
   return dbPromise;
 };
 
 export const initDb = async (): Promise<void> => {
+  if (Platform.OS === 'web') {
+    return;
+  }
   const db = await getDb();
 
   await db.execAsync('PRAGMA foreign_keys = ON;');
