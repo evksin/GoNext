@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import {
   Appbar,
@@ -45,9 +45,11 @@ export default function PlaceDetailsScreen() {
     }
   }, [placeId]);
 
-  useEffect(() => {
-    loadPlace();
-  }, [loadPlace]);
+  useFocusEffect(
+    useCallback(() => {
+      loadPlace();
+    }, [loadPlace])
+  );
 
   const handleOpenMap = async () => {
     if (!place || place.ddLat == null || place.ddLng == null) {

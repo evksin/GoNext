@@ -58,4 +58,22 @@ export const initDb = async (): Promise<void> => {
       throw error;
     }
   }
+
+  await ensurePlaceCoordinatesColumns(db);
+};
+
+const ensurePlaceCoordinatesColumns = async (
+  db: SQLiteDatabase
+): Promise<void> => {
+  const columns = await db.getAllAsync<{ name: string }>(
+    'PRAGMA table_info(place);'
+  );
+  const names = new Set(columns.map((column) => column.name));
+
+  if (!names.has('dd_lat')) {
+    await db.execAsync('ALTER TABLE place ADD COLUMN dd_lat REAL;');
+  }
+  if (!names.has('dd_lng')) {
+    await db.execAsync('ALTER TABLE place ADD COLUMN dd_lng REAL;');
+  }
 };

@@ -20,8 +20,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   const [description, setDescription] = useState('');
   const [visitLater, setVisitLater] = useState(true);
   const [liked, setLiked] = useState(false);
-  const [ddLat, setDdLat] = useState('');
-  const [ddLng, setDdLng] = useState('');
+  const [coordinates, setCoordinates] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -39,8 +38,11 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       setDescription(place.description ?? '');
       setVisitLater(place.visitLater);
       setLiked(place.liked);
-      setDdLat(place.ddLat?.toString() ?? '');
-      setDdLng(place.ddLng?.toString() ?? '');
+      if (place.ddLat != null && place.ddLng != null) {
+        setCoordinates(`${place.ddLat}, ${place.ddLng}`);
+      } else {
+        setCoordinates('');
+      }
     } catch {
       setMessage('Не удалось загрузить место.');
     }
@@ -57,6 +59,12 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       return;
     }
 
+    const parsed = parseCoordinates(coordinates);
+    if (!parsed && coordinates.trim()) {
+      setMessage('Введите координаты в формате "широта, долгота".');
+      return;
+    }
+
     setLoading(true);
     try {
       await savePlace({
@@ -65,8 +73,8 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         description: description.trim() ? description.trim() : null,
         visitLater,
         liked,
-        ddLat: ddLat.trim() ? Number(ddLat) : null,
-        ddLng: ddLng.trim() ? Number(ddLng) : null,
+        ddLat: parsed?.lat ?? null,
+        ddLng: parsed?.lng ?? null,
         photos: [],
       });
       onSaved();
@@ -106,20 +114,11 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       </View>
 
       <TextInput
-        label="Широта (DD)"
-        value={ddLat}
-        onChangeText={setDdLat}
+        label="Координаты (DD)"
+        value={coordinates}
+        onChangeText={setCoordinates}
         mode="outlined"
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <TextInput
-        label="Долгота (DD)"
-        value={ddLng}
-        onChangeText={setDdLng}
-        mode="outlined"
-        keyboardType="numeric"
+        placeholder="55.7558, 37.6176"
       />
 
       <Button
@@ -141,6 +140,25 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
     </View>
   );
 }
+
+const parseCoordinates = (
+  value: string
+): { lat: number; lng: number } | null => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const matches = trimmed.match(/-?\d+(?:[.,]\d+)?/g);
+  if (!matches || matches.length < 2) {
+    return null;
+  }
+  const lat = Number(matches[0].replace(',', '.'));
+  const lng = Number(matches[1].replace(',', '.'));
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return null;
+  }
+  return { lat, lng };
+};
 
 const styles = StyleSheet.create({
   form: {
