@@ -63,6 +63,14 @@ export const listTrips = async (): Promise<Trip[]> => {
   return rows.map(mapTrip);
 };
 
+export const getCurrentTrip = async (): Promise<Trip | null> => {
+  const db = await getDb();
+  const row = await db.getFirstAsync<TripRow>(
+    'SELECT * FROM trip WHERE current = 1 ORDER BY createdAt DESC LIMIT 1;'
+  );
+  return row ? mapTrip(row) : null;
+};
+
 export const getTripById = async (id: number): Promise<Trip | null> => {
   const db = await getDb();
   const row = await db.getFirstAsync<TripRow>(
@@ -136,6 +144,23 @@ export const listTripPlaces = async (tripId: number): Promise<TripPlace[]> => {
     [tripId]
   );
   return rows.map(mapTripPlace);
+};
+
+export const getNextTripPlace = async (
+  tripId: number
+): Promise<TripPlace | null> => {
+  const db = await getDb();
+  const row = await db.getFirstAsync<TripPlaceRow>(
+    `
+      SELECT *
+      FROM trip_place
+      WHERE tripId = ? AND visited = 0
+      ORDER BY orderIndex ASC
+      LIMIT 1;
+    `,
+    [tripId]
+  );
+  return row ? mapTripPlace(row) : null;
 };
 
 export const addPlaceToTrip = async (
