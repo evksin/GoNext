@@ -162,6 +162,12 @@ export default function TripDetailsScreen() {
     loadTrip();
   };
 
+  const handleRemoveTripPhoto = async (item: TripPlaceView, uri: string) => {
+    const updatedPhotos = item.photos.filter((photo) => photo !== uri);
+    await updateTripPlace(item.id, { photos: updatedPhotos });
+    loadTrip();
+  };
+
   return (
     <ScreenBackground>
       <View style={styles.screen}>
@@ -238,15 +244,22 @@ export default function TripDetailsScreen() {
                   {item.photos.length > 0 ? (
                     <View style={styles.photos}>
                       {item.photos.map((photo, photoIndex) => (
-                        <Pressable
+                        <View
                           key={`${item.id}-photo-${photoIndex}`}
-                          onPress={() => setFullScreenPhoto(photo)}
+                          style={styles.photoItem}
                         >
-                          <Image
-                            source={{ uri: photo }}
-                            style={styles.photoThumb}
+                          <Pressable onPress={() => setFullScreenPhoto(photo)}>
+                            <Image
+                              source={{ uri: photo }}
+                              style={styles.photoThumb}
+                            />
+                          </Pressable>
+                          <IconButton
+                            icon="close-circle"
+                            size={18}
+                            onPress={() => handleRemoveTripPhoto(item, photo)}
                           />
-                        </Pressable>
+                        </View>
                       ))}
                     </View>
                   ) : (
@@ -330,7 +343,7 @@ export default function TripDetailsScreen() {
               style={styles.fullScreenClose}
               onPress={() => setFullScreenPhoto(null)}
             >
-              <Text style={styles.fullScreenCloseText}>Закрыть</Text>
+              <Text style={styles.fullScreenCloseText}>✕</Text>
             </Pressable>
             {fullScreenPhoto && (
               <Image
@@ -412,6 +425,7 @@ const styles = StyleSheet.create({
   },
   fullScreenCloseText: {
     color: '#ffffff',
+    fontSize: 24,
   },
 });
 
