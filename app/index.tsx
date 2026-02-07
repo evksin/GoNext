@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Appbar, Button, Snackbar, Text } from 'react-native-paper';
+import { useRouter } from 'expo-router';
+import { Appbar, Button } from 'react-native-paper';
 
 export default function HomeScreen() {
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
+  const router = useRouter();
 
   return (
     <View style={styles.screen}>
@@ -12,23 +12,35 @@ export default function HomeScreen() {
       </Appbar.Header>
 
       <View style={styles.content}>
-        <Text variant="titleMedium">Привет, Юрий!</Text>
         <Button
           mode="contained"
-          onPress={() => setSnackbarVisible(true)}
+          onPress={() => router.push('/places')}
           style={styles.button}
         >
-          Нажми меня
+          Места
+        </Button>
+        <Button
+          mode="contained"
+          onPress={() => router.push('/trips')}
+          style={styles.button}
+        >
+          Поездки
+        </Button>
+        <Button
+          mode="contained"
+          onPress={() => router.push('/next-place')}
+          style={styles.button}
+        >
+          Следующее место
+        </Button>
+        <Button
+          mode="contained"
+          onPress={() => router.push('/settings')}
+          style={styles.button}
+        >
+          Настройки
         </Button>
       </View>
-
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={2000}
-      >
-        Кнопка нажата
-      </Snackbar>
     </View>
   );
 }
@@ -42,8 +54,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
+    width: '100%',
+    gap: 12,
   },
   button: {
-    marginTop: 16,
+    width: '100%',
   },
 });
