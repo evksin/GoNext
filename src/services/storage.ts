@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const baseDir = `${FileSystem.documentDirectory}gonext/`;
 const photosDir = `${baseDir}photos/`;
