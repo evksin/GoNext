@@ -23,6 +23,7 @@ export default function TripAddPlacesScreen() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
+  const [debugInfo, setDebugInfo] = useState('');
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -65,11 +66,26 @@ export default function TripAddPlacesScreen() {
       return;
     }
     try {
-      for (const id of selectedIds) {
-        await addPlaceToTrip(tripId, id);
+      const ids = Array.from(selectedIds);
+      if (ids.length === 0) {
+        setMessage('Выберите хотя бы одно место.');
+        return;
       }
-      router.back();
-    } catch {
+      const beforeCount = (await listTripPlaces(tripId)).length;
+      await Promise.all(ids.map((id) => addPlaceToTrip(tripId, id)));
+      const afterCount = (await listTripPlaces(tripId)).length;
+      setDebugInfo(
+        `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}`
+      );
+      if (afterCount <= beforeCount) {
+        setMessage('Места не добавлены. Попробуйте ещё раз.');
+        return;
+      }
+      router.replace(`/trips/${tripId}`);
+    } catch (error) {
+      console.error('Add places failed:', error);
+      const details = error instanceof Error ? error.message : 'unknown';
+      setDebugInfo(`tripId=${tripId}, ошибка=${details}`);
       setMessage('Не удалось добавить места.');
     }
   };
@@ -109,6 +125,7 @@ export default function TripAddPlacesScreen() {
 
         <View style={styles.actions}>
           <Text>Выбрано: {selectedIds.size}</Text>
+          {debugInfo ? <Text>DEBUG: {debugInfo}</Text> : null}
           <Button
             mode="contained"
             onPress={handleAdd}

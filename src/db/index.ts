@@ -60,6 +60,8 @@ export const initDb = async (): Promise<void> => {
   }
 
   await ensurePlaceCoordinatesColumns(db);
+  await ensureTripSchema(db);
+  await ensureTripPlaceSchema(db);
 };
 
 const ensurePlaceCoordinatesColumns = async (
@@ -78,5 +80,57 @@ const ensurePlaceCoordinatesColumns = async (
   }
   if (!names.has('dd_text')) {
     await db.execAsync('ALTER TABLE place ADD COLUMN dd_text TEXT;');
+  }
+};
+
+const ensureTripSchema = async (db: SQLiteDatabase): Promise<void> => {
+  const columns = await db.getAllAsync<{ name: string }>(
+    'PRAGMA table_info(trip);'
+  );
+  if (columns.length === 0) {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS trip (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        startDate TEXT,
+        endDate TEXT,
+        createdAt TEXT NOT NULL,
+        current INTEGER NOT NULL DEFAULT 0
+      );
+    `);
+  }
+};
+
+const ensureTripPlaceSchema = async (db: SQLiteDatabase): Promise<void> => {
+  const columns = await db.getAllAsync<{ name: string }>(
+    'PRAGMA table_info(trip_place);'
+  );
+  if (columns.length === 0) {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS trip_place (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tripId INTEGER NOT NULL,
+        placeId INTEGER NOT NULL,
+        orderIndex INTEGER NOT NULL,
+        visited INTEGER NOT NULL DEFAULT 0,
+        visitDate TEXT,
+        notes TEXT,
+        photos TEXT,
+        FOREIGN KEY (tripId) REFERENCES trip(id) ON DELETE CASCADE,
+        FOREIGN KEY (placeId) REFERENCES place(id) ON DELETE CASCADE
+      );
+    `);
+    return;
+  }
+  const names = new Set(columns.map((column) => column.name));
+  if (!names.has('visitDate')) {
+    await db.execAsync('ALTER TABLE trip_place ADD COLUMN visitDate TEXT;');
+  }
+  if (!names.has('notes')) {
+    await db.execAsync('ALTER TABLE trip_place ADD COLUMN notes TEXT;');
+  }
+  if (!names.has('photos')) {
+    await db.execAsync('ALTER TABLE trip_place ADD COLUMN photos TEXT;');
   }
 };
