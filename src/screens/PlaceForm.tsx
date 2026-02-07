@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import {
   Button,
+  HelperText,
   Snackbar,
   Switch,
   Text,
@@ -147,8 +148,24 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         autoCapitalize="none"
         autoComplete="off"
         textContentType="none"
-        importantForAutofill="no"
+        importantForAutofill="noExcludeDescendants"
+        right={
+          coordinates
+            ? (
+                <TextInput.Icon
+                  icon="close-circle"
+                  onPress={() => {
+                    setCoordinates('');
+                    setCoordsDirty(false);
+                  }}
+                />
+              )
+            : undefined
+        }
       />
+      <HelperText type="info">
+        Если автозаполнение подставляет координаты, нажмите крестик справа.
+      </HelperText>
 
       <Button
         mode="contained"
