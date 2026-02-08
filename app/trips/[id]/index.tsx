@@ -6,6 +6,7 @@ import {
   Appbar,
   Button,
   Card,
+  Chip,
   Dialog,
   IconButton,
   List,
@@ -225,7 +226,18 @@ export default function TripDetailsScreen() {
                 <Text>Начало: {trip.startDate ?? 'не указано'}</Text>
                 <Text>Окончание: {trip.endDate ?? 'не указано'}</Text>
                 <Text>Текущая: {trip.current ? 'да' : 'нет'}</Text>
-                <Text>Теги: {formatTags(tripTags)}</Text>
+                <Text>Теги:</Text>
+                <View style={styles.tagRow}>
+                  {tripTags.length > 0 ? (
+                    tripTags.map((tag) => (
+                      <Chip key={tag} style={styles.tagChip}>
+                        {tag}
+                      </Chip>
+                    ))
+                  ) : (
+                    <Text>нет</Text>
+                  )}
+                </View>
               </Card.Content>
               <Card.Actions style={styles.tripActions}>
                 <Button
@@ -478,6 +490,15 @@ const styles = StyleSheet.create({
   tripActionLabel: {
     textAlign: 'center',
   },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    alignItems: 'center',
+  },
+  tagChip: {
+    height: 28,
+  },
   cardRight: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -526,9 +547,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
 });
-
-const formatTags = (tags: string[]): string =>
-  tags.length > 0 ? tags.join(', ') : 'нет';
 
 const formatDateTime = (value: string | null): string => {
   if (!value) {

@@ -6,6 +6,7 @@ import {
   Appbar,
   Button,
   Card,
+  Chip,
   Dialog,
   Portal,
   Snackbar,
@@ -113,9 +114,18 @@ export default function PlaceDetailsScreen() {
                 <Text style={styles.bodyText}>
                   Координаты: {formatCoordinates(place)}
                 </Text>
-                <Text style={styles.bodyText}>
-                  Теги: {formatTags(tags)}
-                </Text>
+                <Text style={styles.bodyText}>Теги:</Text>
+                <View style={styles.tagRow}>
+                  {tags.length > 0 ? (
+                    tags.map((tag) => (
+                      <Chip key={tag} style={styles.tagChip}>
+                        {tag}
+                      </Chip>
+                    ))
+                  ) : (
+                    <Text style={styles.bodyText}>нет</Text>
+                  )}
+                </View>
                 <Text style={styles.bodyText}>
                   Создано: {new Date(place.createdAt).toLocaleString()}
                 </Text>
@@ -211,9 +221,6 @@ const formatCoordinates = (place: Place | null): string => {
   return `${coords.lat}, ${coords.lng}`;
 };
 
-const formatTags = (tags: string[]): string =>
-  tags.length > 0 ? tags.join(', ') : 'нет';
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -228,6 +235,15 @@ const styles = StyleSheet.create({
   cardActions: {
     flexWrap: 'wrap',
     gap: 8,
+  },
+  tagRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    alignItems: 'center',
+  },
+  tagChip: {
+    height: 28,
   },
   titleText: {
     fontSize: 20,
