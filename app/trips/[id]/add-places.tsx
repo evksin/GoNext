@@ -12,7 +12,12 @@ import {
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
 import { listPlaces } from '../../../src/data/places';
-import { addPlaceToTrip, getTripPlaceColumnNames, listTripPlaces } from '../../../src/data/trips';
+import {
+  addPlaceToTrip,
+  getTripPlaceColumnNames,
+  getTripPlaceCounts,
+  listTripPlaces,
+} from '../../../src/data/trips';
 import { Place } from '../../../src/models/types';
 
 export default function TripAddPlacesScreen() {
@@ -88,16 +93,19 @@ export default function TripAddPlacesScreen() {
       setStatusText(
         `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}`
       );
-      await Promise.all(ids.map((id) => addPlaceToTrip(tripId, id)));
+      const insertedIds = await Promise.all(
+        ids.map((id) => addPlaceToTrip(tripId, id))
+      );
       const afterCount = (await listTripPlaces(tripId)).length;
+      const counts = await getTripPlaceCounts(tripId);
       if (afterCount <= beforeCount) {
         setMessage(
-          `Места не добавлены. tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}`
+          `Места не добавлены. tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}, total=${counts.total}, forTrip=${counts.forTrip}`
         );
         return;
       }
       setStatusText(
-        `Успешно: tripId=${tripId}, до=${beforeCount}, после=${afterCount}`
+        `Успешно: tripId=${tripId}, ids=${insertedIds.join(',')}, total=${counts.total}, forTrip=${counts.forTrip}`
       );
       setAddedSuccess(true);
     } catch (error) {

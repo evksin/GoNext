@@ -163,6 +163,23 @@ export const getNextTripPlace = async (
   return row ? mapTripPlace(row) : null;
 };
 
+export const getTripPlaceCounts = async (
+  tripId: number
+): Promise<{ total: number; forTrip: number }> => {
+  const db = await getDb();
+  const totalRow = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) as count FROM trip_place;'
+  );
+  const tripRow = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) as count FROM trip_place WHERE tripId = ?;',
+    [tripId]
+  );
+  return {
+    total: totalRow?.count ?? 0,
+    forTrip: tripRow?.count ?? 0,
+  };
+};
+
 export const getTripPlaceColumnNames = async (): Promise<string[]> => {
   const db = await getDb();
   const columns = await db.getAllAsync<{ name: string }>(
