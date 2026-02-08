@@ -30,19 +30,22 @@ export default function TripAddPlacesScreen() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState('');
   const [statusText, setStatusText] = useState('');
+  const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-4';
+  const buildMarker = 'build:2026-02-07-5';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
+      const text = `${buildMarker} | tripId=invalid`;
       setMessage('Некорректный идентификатор поездки.');
-      setStatusText(`${buildMarker} | tripId=invalid`);
+      setStatusText(text);
+      setInfoText(text);
       return;
     }
     const columns = await getTripPlaceColumnNames();
-    setStatusText(
-      `${buildMarker} | tripId=${tripId} | columns=${columns.join(',') || 'none'}`
-    );
+    const baseText = `${buildMarker} | tripId=${tripId} | columns=${columns.join(',') || 'none'}`;
+    setStatusText(baseText);
+    setInfoText(baseText);
     try {
       const [allPlaces, tripPlaces] = await Promise.all([
         listPlaces(),
@@ -52,8 +55,10 @@ export default function TripAddPlacesScreen() {
       setPlaces(allPlaces.filter((place) => !existing.has(place.id)));
       setSelectedIds(new Set());
     } catch {
+      const text = `${buildMarker} | tripId=${tripId} | load error`;
       setMessage('Не удалось загрузить места.');
-      setStatusText(`${buildMarker} | tripId=${tripId} | load error`);
+      setStatusText(text);
+      setInfoText(text);
     }
   }, [tripId]);
 
@@ -88,35 +93,37 @@ export default function TripAddPlacesScreen() {
         setMessage('Выберите хотя бы одно место.');
         return;
       }
-      setStatusText(`tripId=${tripId}, выбранные=${ids.length}`);
+      const selectingText = `tripId=${tripId}, выбранные=${ids.length}`;
+      setStatusText(selectingText);
       setMessage(`Выбрано: ${ids.length}`);
+      setInfoText(selectingText);
       const beforeCount = (await listTripPlaces(tripId)).length;
-      setStatusText(
-        `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}`
-      );
+      const beforeText = `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}`;
+      setStatusText(beforeText);
       setMessage(`До добавления: ${beforeCount}`);
+      setInfoText(beforeText);
       const insertedIds = await Promise.all(
         ids.map((id) => addPlaceToTrip(tripId, id))
       );
       const afterCount = (await listTripPlaces(tripId)).length;
       const counts = await getTripPlaceCounts(tripId);
       if (afterCount <= beforeCount) {
-        setMessage(
-          `Места не добавлены. tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}, total=${counts.total}, forTrip=${counts.forTrip}`
-        );
+        const text = `Места не добавлены. tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}, после=${afterCount}, total=${counts.total}, forTrip=${counts.forTrip}`;
+        setMessage(text);
+        setInfoText(text);
         return;
       }
-      setStatusText(
-        `Успешно: tripId=${tripId}, ids=${insertedIds.join(',')}, total=${counts.total}, forTrip=${counts.forTrip}`
-      );
-      setMessage(
-        `Добавлено: ids=${insertedIds.join(',')} | total=${counts.total} | forTrip=${counts.forTrip}`
-      );
+      const successText = `Успешно: tripId=${tripId}, ids=${insertedIds.join(',')}, total=${counts.total}, forTrip=${counts.forTrip}`;
+      setStatusText(successText);
+      setMessage(successText);
+      setInfoText(successText);
       setAddedSuccess(true);
     } catch (error) {
       console.error('Add places failed:', error);
       const details = error instanceof Error ? error.message : 'unknown';
-      setStatusText(`Ошибка: tripId=${tripId}, ${details}`);
+      const text = `Ошибка: tripId=${tripId}, ${details}`;
+      setStatusText(text);
+      setInfoText(text);
       setMessage('Не удалось добавить места.');
     }
   };
@@ -159,6 +166,7 @@ export default function TripAddPlacesScreen() {
         <View style={styles.actions}>
           <Text>Выбрано: {selectedIds.size}</Text>
           <Text>{statusText || 'status: ожидаю'}</Text>
+          {infoText ? <Text>{infoText}</Text> : null}
           {addedSuccess && (
             <Button mode="outlined" onPress={() => router.replace(`/trips/${tripId}`)}>
               Готово
@@ -176,7 +184,7 @@ export default function TripAddPlacesScreen() {
         <Snackbar
           visible={Boolean(message)}
           onDismiss={() => setMessage('')}
-          duration={2500}
+          duration={10000}
         >
           {message}
         </Snackbar>
