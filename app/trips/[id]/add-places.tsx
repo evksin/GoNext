@@ -8,6 +8,7 @@ import {
   List,
   Snackbar,
   Text,
+  Surface,
 } from 'react-native-paper';
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
@@ -32,7 +33,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-8';
+  const buildMarker = 'build:2026-02-07-9';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -164,7 +165,7 @@ export default function TripAddPlacesScreen() {
           )}
         </View>
 
-        <View style={styles.actions}>
+        <Surface style={styles.actions} elevation={4}>
           <Text>Выбрано: {selectedIds.size}</Text>
           <Text>{statusText || 'status: ожидаю'}</Text>
           {infoText ? <Text>{infoText}</Text> : null}
@@ -186,7 +187,7 @@ export default function TripAddPlacesScreen() {
           >
             <Text style={styles.addButtonText}>Добавить выбранные</Text>
           </TouchableOpacity>
-        </View>
+        </Surface>
 
         <Snackbar
           visible={Boolean(message)}
@@ -207,9 +208,16 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
+    paddingBottom: 160,
   },
   actions: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     padding: 16,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    gap: 6,
   },
   addButton: {
     backgroundColor: '#2E7D32',
