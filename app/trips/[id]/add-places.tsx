@@ -32,7 +32,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-12';
+  const buildMarker = 'build:2026-02-07-13';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -135,11 +135,19 @@ export default function TripAddPlacesScreen() {
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Добавить места" />
+        <Appbar.Action icon="bug" onPress={() => setMessage('Нажата иконка в шапке')} />
       </Appbar.Header>
 
       <View style={styles.content}>
         <Text>{buildMarker}</Text>
         <Text>tripId: {rawId ?? 'нет'}</Text>
+        <TouchableOpacity
+          onPress={() => setMessage('Нажата тест-кнопка в контенте')}
+          style={styles.testButton}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.testButtonText}>Тест касания (контент)</Text>
+        </TouchableOpacity>
         <ScrollView contentContainerStyle={styles.listContent}>
           {places.length === 0 && <Text>Нет доступных мест.</Text>}
           {places.length > 0 && (
@@ -175,6 +183,13 @@ export default function TripAddPlacesScreen() {
             Готово
           </Button>
         )}
+        <TouchableOpacity
+          onPress={() => setMessage('Нажата тест-кнопка внизу')}
+          style={styles.testButton}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.testButtonText}>Тест касания (низ)</Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPressIn={() => setMessage('Нажатие кнопки')}
           onPress={handleAdd}
@@ -220,6 +235,15 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: 'rgba(255,255,255,0.98)',
     gap: 6,
+  },
+  testButton: {
+    backgroundColor: '#1976D2',
+    paddingVertical: 8,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  testButtonText: {
+    color: '#ffffff',
   },
   addButton: {
     backgroundColor: '#2E7D32',
