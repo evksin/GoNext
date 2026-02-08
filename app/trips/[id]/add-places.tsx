@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Appbar,
@@ -11,7 +11,6 @@ import {
   Surface,
 } from 'react-native-paper';
 
-import { ScreenBackground } from '../../../src/components/ScreenBackground';
 import { listPlaces } from '../../../src/data/places';
 import {
   addPlaceToTrip,
@@ -133,72 +132,71 @@ export default function TripAddPlacesScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.plainBackground} />
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Добавить места" />
-        </Appbar.Header>
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => router.back()} />
+        <Appbar.Content title="Добавить места" />
+      </Appbar.Header>
 
-        <View style={styles.content}>
-          <Text>{buildMarker}</Text>
-          <Text>tripId: {rawId ?? 'нет'}</Text>
-          <ScrollView contentContainerStyle={styles.listContent}>
-            {places.length === 0 && <Text>Нет доступных мест.</Text>}
-            {places.length > 0 && (
-              <List.Section>
-                {places.map((place) => {
-                  const checked = isSelected(place.id);
-                  return (
-                    <List.Item
-                      key={place.id}
-                      title={place.name}
-                      description={place.description ?? 'Без описания'}
-                      onPress={() => togglePlace(place.id)}
-                      left={() => (
-                        <Checkbox
-                          status={isSelected(place.id) ? 'checked' : 'unchecked'}
-                          onPress={() => togglePlace(place.id)}
-                        />
-                      )}
-                    />
-                  );
-                })}
-              </List.Section>
-            )}
-          </ScrollView>
-        </View>
-
-        <Surface style={styles.actions} elevation={4}>
-          <Text>Выбрано: {selectedIds.size}</Text>
-          <Text>{statusText || 'status: ожидаю'}</Text>
-          {infoText ? <Text>{infoText}</Text> : null}
-          {addedSuccess && (
-            <Button mode="outlined" onPress={() => router.replace(`/trips/${tripId}`)}>
-              Готово
-            </Button>
+      <View style={styles.content}>
+        <Text>{buildMarker}</Text>
+        <Text>tripId: {rawId ?? 'нет'}</Text>
+        <ScrollView contentContainerStyle={styles.listContent}>
+          {places.length === 0 && <Text>Нет доступных мест.</Text>}
+          {places.length > 0 && (
+            <List.Section>
+              {places.map((place) => {
+                const checked = isSelected(place.id);
+                return (
+                  <List.Item
+                    key={place.id}
+                    title={place.name}
+                    description={place.description ?? 'Без описания'}
+                    onPress={() => togglePlace(place.id)}
+                    left={() => (
+                      <Checkbox
+                        status={isSelected(place.id) ? 'checked' : 'unchecked'}
+                        onPress={() => togglePlace(place.id)}
+                      />
+                    )}
+                  />
+                );
+              })}
+            </List.Section>
           )}
-          <TouchableOpacity
-            onPressIn={() => setMessage('Нажатие кнопки')}
-            onPress={handleAdd}
-            disabled={selectedIds.size === 0}
-            activeOpacity={0.8}
-            style={[
-              styles.addButton,
-              selectedIds.size === 0 && styles.addButtonDisabled,
-            ]}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Text style={styles.addButtonText}>Добавить выбранные</Text>
-          </TouchableOpacity>
-        </Surface>
-
-        <Snackbar
-          visible={Boolean(message)}
-          onDismiss={() => setMessage('')}
-          duration={10000}
-        >
-          {message}
-        </Snackbar>
+        </ScrollView>
       </View>
+
+      <Surface style={styles.actions} elevation={4}>
+        <Text>Выбрано: {selectedIds.size}</Text>
+        <Text>{statusText || 'status: ожидаю'}</Text>
+        {infoText ? <Text>{infoText}</Text> : null}
+        {addedSuccess && (
+          <Button mode="outlined" onPress={() => router.replace(`/trips/${tripId}`)}>
+            Готово
+          </Button>
+        )}
+        <TouchableOpacity
+          onPressIn={() => setMessage('Нажатие кнопки')}
+          onPress={handleAdd}
+          disabled={selectedIds.size === 0}
+          activeOpacity={0.8}
+          style={[
+            styles.addButton,
+            selectedIds.size === 0 && styles.addButtonDisabled,
+          ]}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <Text style={styles.addButtonText}>Добавить выбранные</Text>
+        </TouchableOpacity>
+      </Surface>
+
+      <Snackbar
+        visible={Boolean(message)}
+        onDismiss={() => setMessage('')}
+        duration={10000}
+      >
+        {message}
+      </Snackbar>
     </View>
   );
 }
