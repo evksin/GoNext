@@ -17,6 +17,7 @@ export default function PlaceEditScreen() {
           <Appbar.Header>
             <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title="Редактирование" />
+            <Appbar.Action icon="home" onPress={() => router.replace('/')} />
           </Appbar.Header>
           <View style={styles.center}>
             <Text>Некорректный идентификатор места.</Text>
@@ -32,6 +33,7 @@ export default function PlaceEditScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Редактирование места" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
         </Appbar.Header>
 
         <PlaceForm placeId={placeId} onSaved={() => router.back()} />

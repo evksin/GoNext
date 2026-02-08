@@ -14,6 +14,7 @@ export default function TripCreateScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Новая поездка" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
         </Appbar.Header>
 
         <TripForm onSaved={() => router.back()} />

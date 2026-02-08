@@ -17,6 +17,7 @@ export default function TripEditScreen() {
           <Appbar.Header>
             <Appbar.BackAction onPress={() => router.back()} />
             <Appbar.Content title="Редактирование" />
+            <Appbar.Action icon="home" onPress={() => router.replace('/')} />
           </Appbar.Header>
           <View style={styles.center}>
             <Text>Некорректный идентификатор поездки.</Text>
@@ -32,6 +33,7 @@ export default function TripEditScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Редактирование поездки" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
         </Appbar.Header>
 
         <TripForm tripId={tripId} onSaved={() => router.back()} />

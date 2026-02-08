@@ -13,6 +13,7 @@ export default function SettingsScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Настройки" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
         </Appbar.Header>
 
         <View style={styles.content}>

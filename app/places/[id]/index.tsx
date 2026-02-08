@@ -83,6 +83,7 @@ export default function PlaceDetailsScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Место" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
           {place && (
             <Appbar.Action
               icon="pencil"

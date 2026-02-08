@@ -188,6 +188,7 @@ export default function TripDetailsScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Поездка" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
           {trip && (
             <Appbar.Action
               icon="pencil"

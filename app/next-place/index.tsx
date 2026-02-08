@@ -65,6 +65,7 @@ export default function NextPlaceScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Следующее место" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
         </Appbar.Header>
 
         <View style={styles.content}>

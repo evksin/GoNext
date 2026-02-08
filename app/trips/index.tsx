@@ -34,6 +34,7 @@ export default function TripsScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Поездки" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
           <Appbar.Action icon="plus" onPress={() => router.push('/trips/new')} />
         </Appbar.Header>
 

@@ -14,6 +14,7 @@ export default function PlaceCreateScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Новое место" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
         </Appbar.Header>
 
         <PlaceForm onSaved={() => router.back()} />

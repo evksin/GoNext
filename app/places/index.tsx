@@ -44,6 +44,7 @@ export default function PlacesListScreen() {
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Места" />
+          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
           <Appbar.Action
             icon="plus"
             onPress={() => router.push('/places/new')}
