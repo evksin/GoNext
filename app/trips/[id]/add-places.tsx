@@ -32,7 +32,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-15';
+  const buildMarker = 'build:2026-02-07-16';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -190,25 +190,29 @@ export default function TripAddPlacesScreen() {
         >
           <Text style={styles.testButtonText}>Тест касания (низ)</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPressIn={() => {
-            const text = `Нажатие кнопки (selected=${selectedIds.size})`;
-            setMessage(text);
-            setStatusText(text);
-            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
-          }}
-          onPress={handleAdd}
-          activeOpacity={0.8}
+        <View
           style={[
             styles.addButton,
             selectedIds.size === 0 && styles.addButtonDisabled,
           ]}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          onStartShouldSetResponder={() => {
+            const text = `Responder start (selected=${selectedIds.size})`;
+            setMessage(text);
+            setStatusText(text);
+            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
+            return true;
+          }}
+          onResponderRelease={() => {
+            const text = `Responder release (selected=${selectedIds.size})`;
+            setStatusText(text);
+            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
+            handleAdd();
+          }}
         >
           <Text style={styles.addButtonText}>
             Добавить выбранные ({selectedIds.size})
           </Text>
-        </TouchableOpacity>
+        </View>
       </Surface>
 
       <Snackbar
