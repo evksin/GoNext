@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Appbar,
@@ -8,7 +8,6 @@ import {
   List,
   Snackbar,
   Text,
-  Surface,
 } from 'react-native-paper';
 
 import { listPlaces } from '../../../src/data/places';
@@ -32,7 +31,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-16';
+  const buildMarker = 'build:2026-02-07-17';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -131,7 +130,6 @@ export default function TripAddPlacesScreen() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.plainBackground} />
       <Appbar.Header>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Добавить места" />
@@ -174,7 +172,7 @@ export default function TripAddPlacesScreen() {
         </ScrollView>
       </View>
 
-      <Surface style={styles.actions} elevation={4}>
+      <View style={styles.actions}>
         <Text>Выбрано: {selectedIds.size}</Text>
         <Text>{statusText || 'status: ожидаю'}</Text>
         {infoText ? <Text>{infoText}</Text> : null}
@@ -190,20 +188,19 @@ export default function TripAddPlacesScreen() {
         >
           <Text style={styles.testButtonText}>Тест касания (низ)</Text>
         </TouchableOpacity>
-        <View
+        <Pressable
           style={[
             styles.addButton,
             selectedIds.size === 0 && styles.addButtonDisabled,
           ]}
-          onStartShouldSetResponder={() => {
+          onPressIn={() => {
             const text = `Responder start (selected=${selectedIds.size})`;
             setMessage(text);
             setStatusText(text);
             setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
-            return true;
           }}
-          onResponderRelease={() => {
-            const text = `Responder release (selected=${selectedIds.size})`;
+          onPress={() => {
+            const text = `Press (selected=${selectedIds.size})`;
             setStatusText(text);
             setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
             handleAdd();
@@ -212,8 +209,8 @@ export default function TripAddPlacesScreen() {
           <Text style={styles.addButtonText}>
             Добавить выбранные ({selectedIds.size})
           </Text>
-        </View>
-      </Surface>
+        </Pressable>
+      </View>
 
       <Snackbar
         visible={Boolean(message)}
@@ -229,10 +226,7 @@ export default function TripAddPlacesScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  plainBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: '#ffffff',
   },
   content: {
     flex: 1,
@@ -243,7 +237,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.98)',
+    backgroundColor: '#ffffff',
     gap: 6,
   },
   testButton: {
