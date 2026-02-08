@@ -32,7 +32,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-5';
+  const buildMarker = 'build:2026-02-07-6';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -93,6 +93,7 @@ export default function TripAddPlacesScreen() {
         setMessage('Выберите хотя бы одно место.');
         return;
       }
+      setMessage(`Нажато: ${new Date().toLocaleTimeString()}`);
       const selectingText = `tripId=${tripId}, выбранные=${ids.length}`;
       setStatusText(selectingText);
       setMessage(`Выбрано: ${ids.length}`);
