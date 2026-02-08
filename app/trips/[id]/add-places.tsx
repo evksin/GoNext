@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Appbar,
@@ -31,7 +31,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-17';
+  const buildMarker = 'build:2026-02-07-18';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -146,6 +146,24 @@ export default function TripAddPlacesScreen() {
         >
           <Text style={styles.testButtonText}>Тест касания (контент)</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPressIn={() => {
+            const text = `Нажатие кнопки (selected=${selectedIds.size})`;
+            setMessage(text);
+            setStatusText(text);
+            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
+          }}
+          onPress={handleAdd}
+          activeOpacity={0.8}
+          style={[
+            styles.addButton,
+            selectedIds.size === 0 && styles.addButtonDisabled,
+          ]}
+        >
+          <Text style={styles.addButtonText}>
+            Добавить выбранные ({selectedIds.size})
+          </Text>
+        </TouchableOpacity>
         <ScrollView contentContainerStyle={styles.listContent}>
           {places.length === 0 && <Text>Нет доступных мест.</Text>}
           {places.length > 0 && (
@@ -181,35 +199,6 @@ export default function TripAddPlacesScreen() {
             Готово
           </Button>
         )}
-        <TouchableOpacity
-          onPress={() => setMessage('Нажата тест-кнопка внизу')}
-          style={styles.testButton}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.testButtonText}>Тест касания (низ)</Text>
-        </TouchableOpacity>
-        <Pressable
-          style={[
-            styles.addButton,
-            selectedIds.size === 0 && styles.addButtonDisabled,
-          ]}
-          onPressIn={() => {
-            const text = `Responder start (selected=${selectedIds.size})`;
-            setMessage(text);
-            setStatusText(text);
-            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
-          }}
-          onPress={() => {
-            const text = `Press (selected=${selectedIds.size})`;
-            setStatusText(text);
-            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
-            handleAdd();
-          }}
-        >
-          <Text style={styles.addButtonText}>
-            Добавить выбранные ({selectedIds.size})
-          </Text>
-        </Pressable>
       </View>
 
       <Snackbar
@@ -254,6 +243,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 24,
     alignItems: 'center',
+    alignSelf: 'stretch',
   },
   addButtonDisabled: {
     backgroundColor: '#9E9E9E',
