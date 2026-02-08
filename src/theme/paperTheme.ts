@@ -21,7 +21,7 @@ export type PrimaryColor = (typeof PRIMARY_COLORS)[number];
 const scaleFont = (
   value: number,
   scale: FontScale
-): number => (scale === 'large' ? Math.round(value * 1.15) : value);
+): number => (scale === 'large' ? Math.round(value * 1.25) : value);
 
 const buildFonts = (base: typeof MD3LightTheme, scale: FontScale) => ({
   ...base.fonts,
