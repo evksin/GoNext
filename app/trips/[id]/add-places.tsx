@@ -32,7 +32,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-14';
+  const buildMarker = 'build:2026-02-07-15';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -191,9 +191,12 @@ export default function TripAddPlacesScreen() {
           <Text style={styles.testButtonText}>Тест касания (низ)</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPressIn={() =>
-            setMessage(`Нажатие кнопки (selected=${selectedIds.size})`)
-          }
+          onPressIn={() => {
+            const text = `Нажатие кнопки (selected=${selectedIds.size})`;
+            setMessage(text);
+            setStatusText(text);
+            setInfoText(`${text} | ${new Date().toLocaleTimeString()}`);
+          }}
           onPress={handleAdd}
           activeOpacity={0.8}
           style={[
