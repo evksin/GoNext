@@ -12,7 +12,7 @@ import {
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
 import { listPlaces } from '../../../src/data/places';
-import { addPlaceToTrip, listTripPlaces } from '../../../src/data/trips';
+import { addPlaceToTrip, getTripPlaceColumnNames, listTripPlaces } from '../../../src/data/trips';
 import { Place } from '../../../src/models/types';
 
 export default function TripAddPlacesScreen() {
@@ -34,7 +34,10 @@ export default function TripAddPlacesScreen() {
       setStatusText(`${buildMarker} | tripId=invalid`);
       return;
     }
-    setStatusText(`${buildMarker} | tripId=${tripId}`);
+    const columns = await getTripPlaceColumnNames();
+    setStatusText(
+      `${buildMarker} | tripId=${tripId} | columns=${columns.join(',') || 'none'}`
+    );
     try {
       const [allPlaces, tripPlaces] = await Promise.all([
         listPlaces(),

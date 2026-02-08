@@ -163,6 +163,14 @@ export const getNextTripPlace = async (
   return row ? mapTripPlace(row) : null;
 };
 
+export const getTripPlaceColumnNames = async (): Promise<string[]> => {
+  const db = await getDb();
+  const columns = await db.getAllAsync<{ name: string }>(
+    'PRAGMA table_info(trip_place);'
+  );
+  return columns.map((column) => column.name);
+};
+
 export const addPlaceToTrip = async (
   tripId: number,
   placeId: number
