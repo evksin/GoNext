@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Appbar,
@@ -32,7 +32,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-7';
+  const buildMarker = 'build:2026-02-07-8';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -173,15 +173,19 @@ export default function TripAddPlacesScreen() {
               Готово
             </Button>
           )}
-          <Pressable
+          <TouchableOpacity
+            onPressIn={() => setMessage('Нажатие кнопки')}
             onPress={handleAdd}
+            disabled={selectedIds.size === 0}
+            activeOpacity={0.8}
             style={[
               styles.addButton,
               selectedIds.size === 0 && styles.addButtonDisabled,
             ]}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={styles.addButtonText}>Добавить выбранные</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
 
         <Snackbar
