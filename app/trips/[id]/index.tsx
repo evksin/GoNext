@@ -201,6 +201,7 @@ export default function TripDetailsScreen() {
             <Card style={styles.tripCard}>
               <Card.Title title={trip.title} />
               <Card.Content style={styles.cardContent}>
+                <Text>ID: {trip.id}</Text>
                 <Text>{trip.description ?? 'Без описания'}</Text>
                 <Text>Начало: {trip.startDate ?? 'не указано'}</Text>
                 <Text>Окончание: {trip.endDate ?? 'не указано'}</Text>

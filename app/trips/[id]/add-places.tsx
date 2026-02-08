@@ -31,7 +31,7 @@ export default function TripAddPlacesScreen() {
   const [message, setMessage] = useState('');
   const [statusText, setStatusText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-2';
+  const buildMarker = 'build:2026-02-07-3';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -153,7 +153,7 @@ export default function TripAddPlacesScreen() {
 
         <View style={styles.actions}>
           <Text>Выбрано: {selectedIds.size}</Text>
-          {statusText ? <Text>{statusText}</Text> : null}
+          <Text>{statusText || 'status: ожидаю'}</Text>
           {addedSuccess && (
             <Button mode="outlined" onPress={() => router.replace(`/trips/${tripId}`)}>
               Готово
