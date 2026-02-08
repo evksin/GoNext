@@ -31,7 +31,7 @@ export default function TripAddPlacesScreen() {
   const [message, setMessage] = useState('');
   const [statusText, setStatusText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-3';
+  const buildMarker = 'build:2026-02-07-4';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -89,10 +89,12 @@ export default function TripAddPlacesScreen() {
         return;
       }
       setStatusText(`tripId=${tripId}, выбранные=${ids.length}`);
+      setMessage(`Выбрано: ${ids.length}`);
       const beforeCount = (await listTripPlaces(tripId)).length;
       setStatusText(
         `tripId=${tripId}, выбранные=${ids.length}, до=${beforeCount}`
       );
+      setMessage(`До добавления: ${beforeCount}`);
       const insertedIds = await Promise.all(
         ids.map((id) => addPlaceToTrip(tripId, id))
       );
@@ -106,6 +108,9 @@ export default function TripAddPlacesScreen() {
       }
       setStatusText(
         `Успешно: tripId=${tripId}, ids=${insertedIds.join(',')}, total=${counts.total}, forTrip=${counts.forTrip}`
+      );
+      setMessage(
+        `Добавлено: ids=${insertedIds.join(',')} | total=${counts.total} | forTrip=${counts.forTrip}`
       );
       setAddedSuccess(true);
     } catch (error) {
