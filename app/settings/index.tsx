@@ -1,4 +1,4 @@
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useState } from 'react';
 import {
   Button,
@@ -17,9 +17,20 @@ import { useSettings } from '../../src/contexts/SettingsContext';
 import { clearDatabase, exportDatabase, importDatabase } from '../../src/data/backup';
 import { clearPhotosDirectory } from '../../src/services/storage';
 import { HealthItem, runOfflineCheck } from '../../src/services/healthCheck';
+import { PRIMARY_COLORS } from '../../src/theme/paperTheme';
+import { setLanguage } from '../../src/i18n';
+import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
-  const { themeMode, fontScale, setThemeMode, setFontScale } = useSettings();
+  const {
+    themeMode,
+    fontScale,
+    primaryColor,
+    setThemeMode,
+    setFontScale,
+    setPrimaryColor,
+  } = useSettings();
+  const { t, i18n } = useTranslation();
   const [backupText, setBackupText] = useState('');
   const [message, setMessage] = useState('');
   const [confirmClearVisible, setConfirmClearVisible] = useState(false);
@@ -30,16 +41,16 @@ export default function SettingsScreen() {
 
   const handleExport = async () => {
     if (Platform.OS === 'web') {
-      setMessage('Экспорт недоступен в браузере.');
+      setMessage(t('settings.exportUnavailable'));
       return;
     }
     setLoading(true);
     try {
       const data = await exportDatabase();
       setBackupText(data);
-      setMessage('Экспорт выполнен.');
+      setMessage(t('settings.exportOk'));
     } catch {
-      setMessage('Не удалось выполнить экспорт.');
+      setMessage(t('settings.exportFail'));
     } finally {
       setLoading(false);
     }
@@ -47,19 +58,23 @@ export default function SettingsScreen() {
 
   const handleImport = async () => {
     if (Platform.OS === 'web') {
-      setMessage('Импорт недоступен в браузере.');
+      setMessage(t('settings.importUnavailable'));
       return;
     }
     if (!backupText.trim()) {
-      setMessage('Вставьте данные для импорта.');
+      setMessage(t('settings.pasteImport'));
       return;
     }
     setLoading(true);
     try {
       await importDatabase(backupText);
-      setMessage('Импорт выполнен.');
+      setMessage(t('settings.importOk'));
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Импорт не удался.');
+      if (error instanceof Error && error.message === 'INVALID_BACKUP_FORMAT') {
+        setMessage(t('settings.importInvalid'));
+      } else {
+        setMessage(t('settings.importFail'));
+      }
     } finally {
       setLoading(false);
       setConfirmImportVisible(false);
@@ -68,7 +83,7 @@ export default function SettingsScreen() {
 
   const handleClear = async () => {
     if (Platform.OS === 'web') {
-      setMessage('Очистка недоступна в браузере.');
+      setMessage(t('settings.clearUnavailable'));
       return;
     }
     setLoading(true);
@@ -76,9 +91,9 @@ export default function SettingsScreen() {
       await clearDatabase();
       await clearPhotosDirectory();
       setBackupText('');
-      setMessage('Данные и фото удалены.');
+      setMessage(t('settings.clearOk'));
     } catch {
-      setMessage('Не удалось очистить данные.');
+      setMessage(t('settings.clearFail'));
     } finally {
       setLoading(false);
       setConfirmClearVisible(false);
@@ -90,9 +105,9 @@ export default function SettingsScreen() {
     try {
       const results = await runOfflineCheck();
       setHealthItems(results);
-      setMessage('Проверка завершена.');
+      setMessage(t('settings.checkDone'));
     } catch {
-      setMessage('Не удалось выполнить проверку.');
+      setMessage(t('settings.checkFail'));
     } finally {
       setHealthLoading(false);
     }
@@ -101,30 +116,56 @@ export default function SettingsScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <AppHeader title="Настройки" />
+        <AppHeader title={t('settings.title')} />
 
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.sectionTitle}>Внешний вид</Text>
+          <Text style={styles.sectionTitle}>{t('settings.appearance')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('settings.language')}</Text>
+          <SegmentedButtons
+            value={i18n.resolvedLanguage?.startsWith('en') ? 'en' : 'ru'}
+            onValueChange={(value) => setLanguage(value as 'ru' | 'en')}
+            buttons={[
+              { value: 'ru', label: t('settings.languageRu') },
+              { value: 'en', label: t('settings.languageEn') },
+            ]}
+          />
           <SegmentedButtons
             value={themeMode}
             onValueChange={(value) => setThemeMode(value as typeof themeMode)}
             buttons={[
-              { value: 'light', label: 'Светлая' },
-              { value: 'dark', label: 'Тёмная' },
+              { value: 'light', label: t('settings.themeLight') },
+              { value: 'dark', label: t('settings.themeDark') },
             ]}
           />
           <SegmentedButtons
             value={fontScale}
             onValueChange={(value) => setFontScale(value as typeof fontScale)}
             buttons={[
-              { value: 'normal', label: 'Обычный' },
-              { value: 'large', label: 'Крупный' },
+              { value: 'normal', label: t('settings.fontNormal') },
+              { value: 'large', label: t('settings.fontLarge') },
             ]}
           />
+          <Text style={styles.sectionSubtitle}>{t('settings.primaryColor')}</Text>
+          <View style={styles.colorRow}>
+            {PRIMARY_COLORS.map((color) => {
+              const selected = color === primaryColor;
+              return (
+                <Pressable
+                  key={color}
+                  onPress={() => setPrimaryColor(color)}
+                  style={[
+                    styles.colorDot,
+                    { backgroundColor: color },
+                    selected && styles.colorDotSelected,
+                  ]}
+                />
+              );
+            })}
+          </View>
 
-          <Text style={styles.sectionTitle}>Экспорт / импорт</Text>
+          <Text style={styles.sectionTitle}>{t('settings.exportImport')}</Text>
           <TextInput
-            label="Данные (JSON)"
+            label={t('settings.dataJson')}
             value={backupText}
             onChangeText={setBackupText}
             mode="outlined"
@@ -134,33 +175,33 @@ export default function SettingsScreen() {
           />
           <View style={styles.buttonRow}>
             <Button mode="outlined" onPress={handleExport} loading={loading}>
-              Экспортировать
+              {t('settings.export')}
             </Button>
             <Button
               mode="contained"
               onPress={() => setConfirmImportVisible(true)}
               disabled={loading}
             >
-              Импортировать
+              {t('settings.import')}
             </Button>
           </View>
 
-          <Text style={styles.sectionTitle}>Очистка</Text>
+          <Text style={styles.sectionTitle}>{t('settings.clear')}</Text>
           <Button
             mode="contained"
             onPress={() => setConfirmClearVisible(true)}
             disabled={loading}
           >
-            Очистить данные и фото
+            {t('settings.clearData')}
           </Button>
 
-          <Text style={styles.sectionTitle}>Проверка офлайн</Text>
+          <Text style={styles.sectionTitle}>{t('settings.offlineCheck')}</Text>
           <Button
             mode="outlined"
             onPress={handleHealthCheck}
             loading={healthLoading}
           >
-            Запустить проверку
+            {t('settings.runCheck')}
           </Button>
           {healthItems.length > 0 && (
             <List.Section>
@@ -180,14 +221,14 @@ export default function SettingsScreen() {
             </List.Section>
           )}
 
-          <Text style={styles.sectionTitle}>Чек-лист сценариев</Text>
+          <Text style={styles.sectionTitle}>{t('settings.checklist')}</Text>
           <List.Section>
-            <List.Item title="Создать и отредактировать место" />
-            <List.Item title="Создать поездку и добавить места" />
-            <List.Item title="Отметить посещение, заметки, фото" />
-            <List.Item title="Проверить «Следующее место»" />
-            <List.Item title="Проверить поиск по тексту/тегам/году" />
-            <List.Item title="Сделать экспорт/импорт" />
+            <List.Item title={t('settings.checklistPlace')} />
+            <List.Item title={t('settings.checklistTrip')} />
+            <List.Item title={t('settings.checklistNotes')} />
+            <List.Item title={t('settings.checklistNext')} />
+            <List.Item title={t('settings.checklistSearch')} />
+            <List.Item title={t('settings.checklistBackup')} />
           </List.Section>
         </ScrollView>
 
@@ -196,13 +237,15 @@ export default function SettingsScreen() {
             visible={confirmClearVisible}
             onDismiss={() => setConfirmClearVisible(false)}
           >
-            <Dialog.Title>Удалить данные?</Dialog.Title>
+            <Dialog.Title>{t('settings.clearDialogTitle')}</Dialog.Title>
             <Dialog.Content>
-              <Text>Будут удалены все места, поездки, теги и фото.</Text>
+              <Text>{t('settings.clearDialogText')}</Text>
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={() => setConfirmClearVisible(false)}>Отмена</Button>
-              <Button onPress={handleClear}>Удалить</Button>
+              <Button onPress={() => setConfirmClearVisible(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button onPress={handleClear}>{t('common.delete')}</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
@@ -212,13 +255,15 @@ export default function SettingsScreen() {
             visible={confirmImportVisible}
             onDismiss={() => setConfirmImportVisible(false)}
           >
-            <Dialog.Title>Импортировать данные?</Dialog.Title>
+            <Dialog.Title>{t('settings.importDialogTitle')}</Dialog.Title>
             <Dialog.Content>
-              <Text>Текущие данные будут заменены.</Text>
+              <Text>{t('settings.importDialogText')}</Text>
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={() => setConfirmImportVisible(false)}>Отмена</Button>
-              <Button onPress={handleImport}>Импортировать</Button>
+              <Button onPress={() => setConfirmImportVisible(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button onPress={handleImport}>{t('settings.import')}</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
@@ -246,6 +291,24 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontWeight: '600',
+  },
+  sectionSubtitle: {
+    fontWeight: '600',
+  },
+  colorRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  colorDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorDotSelected: {
+    borderColor: '#000000',
   },
   textArea: {
     minHeight: 140,

@@ -10,6 +10,7 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { AppHeader } from '../../src/components/AppHeader';
 import { ScreenBackground } from '../../src/components/ScreenBackground';
@@ -22,6 +23,7 @@ type SearchType = 'places' | 'trips' | 'notes';
 
 export default function SearchScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [type, setType] = useState<SearchType>('places');
   const [query, setQuery] = useState('');
   const [tagsInput, setTagsInput] = useState('');
@@ -36,7 +38,7 @@ export default function SearchScreen() {
     const trimmedYear = yearInput.trim();
     const year = trimmedYear ? Number(trimmedYear) : undefined;
     if (trimmedYear && Number.isNaN(year)) {
-      setMessage('Год должен быть числом.');
+      setMessage(t('search.yearInvalid'));
       return;
     }
     setLoading(true);
@@ -60,7 +62,7 @@ export default function SearchScreen() {
         setTrips([]);
       }
     } catch {
-      setMessage('Не удалось выполнить поиск.');
+      setMessage(t('search.searchFail'));
     } finally {
       setLoading(false);
     }
@@ -69,36 +71,36 @@ export default function SearchScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <AppHeader title="Поиск" />
+        <AppHeader title={t('search.title')} />
 
         <View style={styles.content}>
           <SegmentedButtons
             value={type}
             onValueChange={(value) => setType(value as SearchType)}
             buttons={[
-              { value: 'places', label: 'Места' },
-              { value: 'trips', label: 'Поездки' },
-              { value: 'notes', label: 'Заметки' },
+              { value: 'places', label: t('search.places') },
+              { value: 'trips', label: t('search.trips') },
+              { value: 'notes', label: t('search.notes') },
             ]}
           />
 
           <TextInput
-            label="Поиск по тексту"
+            label={t('search.query')}
             value={query}
             onChangeText={setQuery}
             mode="outlined"
           />
 
           <TextInput
-            label="Теги"
+            label={t('search.tags')}
             value={tagsInput}
             onChangeText={setTagsInput}
             mode="outlined"
-            placeholder="музей, прогулка"
+            placeholder={t('places.tagsPlaceholder')}
           />
 
           <TextInput
-            label="Год"
+            label={t('search.year')}
             value={yearInput}
             onChangeText={setYearInput}
             mode="outlined"
@@ -107,7 +109,7 @@ export default function SearchScreen() {
           />
 
           <Button mode="contained" onPress={handleSearch} loading={loading}>
-            Найти
+            {t('search.search')}
           </Button>
 
           {loading && <ActivityIndicator style={styles.loading} />}
@@ -118,7 +120,7 @@ export default function SearchScreen() {
                 <List.Item
                   key={place.id}
                   title={place.name}
-                  description={place.description ?? 'Без описания'}
+                  description={place.description ?? t('common.notSpecified')}
                   onPress={() => router.push(`/places/${place.id}`)}
                 />
               ))}
@@ -128,7 +130,7 @@ export default function SearchScreen() {
                 <List.Item
                   key={trip.id}
                   title={trip.title}
-                  description={trip.description ?? 'Без описания'}
+                  description={trip.description ?? t('common.notSpecified')}
                   onPress={() => router.push(`/trips/${trip.id}`)}
                 />
               ))}
@@ -146,25 +148,25 @@ export default function SearchScreen() {
             {!loading &&
               query.trim() === '' &&
               tagsInput.trim() === '' &&
-              yearInput.trim() === '' && <Text>Введите критерии поиска.</Text>}
+              yearInput.trim() === '' && <Text>{t('search.enterCriteria')}</Text>}
 
             {!loading &&
               type === 'places' &&
               places.length === 0 &&
               (query.trim() || tagsInput.trim() || yearInput.trim()) && (
-                <Text>Ничего не найдено.</Text>
+                <Text>{t('search.nothingFound')}</Text>
               )}
             {!loading &&
               type === 'trips' &&
               trips.length === 0 &&
               (query.trim() || tagsInput.trim() || yearInput.trim()) && (
-                <Text>Ничего не найдено.</Text>
+                <Text>{t('search.nothingFound')}</Text>
               )}
             {!loading &&
               type === 'notes' &&
               notes.length === 0 &&
               (query.trim() || tagsInput.trim() || yearInput.trim()) && (
-                <Text>Ничего не найдено.</Text>
+                <Text>{t('search.nothingFound')}</Text>
               )}
           </ScrollView>
         </View>

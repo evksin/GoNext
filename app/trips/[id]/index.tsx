@@ -16,6 +16,7 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
 import { AppHeader } from '../../../src/components/AppHeader';
@@ -42,6 +43,7 @@ type TripPlaceView = TripPlace & {
 
 export default function TripDetailsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ id?: string }>();
   const tripId = useMemo(
     () => (params.id ? Number(params.id) : null),
@@ -63,13 +65,13 @@ export default function TripDetailsScreen() {
 
   const loadTrip = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
-      setMessage('Некорректный идентификатор поездки.');
+      setMessage(t('trips.invalidId'));
       return;
     }
     try {
       const data = await getTripById(tripId);
       if (!data) {
-        setMessage('Поездка не найдена.');
+        setMessage(t('trips.notFound'));
         return;
       }
       setTrip(data);
@@ -84,9 +86,9 @@ export default function TripDetailsScreen() {
       );
       setItems(withPlaces);
     } catch {
-      setMessage('Не удалось загрузить поездку.');
+      setMessage(t('trips.loadFail'));
     }
-  }, [tripId]);
+  }, [tripId, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -117,7 +119,7 @@ export default function TripDetailsScreen() {
     try {
       tags = await listTripPlaceTags(item.id);
     } catch {
-      setMessage('Не удалось загрузить теги заметки.');
+      setMessage(t('trips.loadFail'));
     }
     setNoteDialog({
       id: item.id,
@@ -145,12 +147,12 @@ export default function TripDetailsScreen() {
       return;
     }
     if (Platform.OS === 'web') {
-      setMessage('Камера недоступна в веб-версии.');
+      setMessage(t('trips.cameraUnavailable'));
       return;
     }
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      setMessage('Нет доступа к камере.');
+      setMessage(t('trips.cameraDenied'));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -165,7 +167,7 @@ export default function TripDetailsScreen() {
         prev ? { ...prev, photos: [...prev.photos, savedPath] } : prev
       );
     } catch {
-      setMessage('Не удалось сохранить фото.');
+      setMessage(t('trips.photoSaveFail'));
     }
   };
 
@@ -197,7 +199,7 @@ export default function TripDetailsScreen() {
       await deleteTrip(trip.id);
       router.replace('/trips');
     } catch {
-      setMessage('Не удалось удалить поездку.');
+      setMessage(t('trips.deleteFail'));
     }
   };
 
@@ -205,7 +207,7 @@ export default function TripDetailsScreen() {
     <ScreenBackground>
       <View style={styles.screen}>
         <AppHeader
-          title="Поездка"
+          title={t('trips.title')}
           rightActions={
             trip ? (
               <Appbar.Action
@@ -221,12 +223,14 @@ export default function TripDetailsScreen() {
             <Card style={styles.tripCard}>
               <Card.Title title={trip.title} />
               <Card.Content style={styles.cardContent}>
-                <Text>ID: {trip.id}</Text>
-                <Text>{trip.description ?? 'Без описания'}</Text>
-                <Text>Начало: {trip.startDate ?? 'не указано'}</Text>
-                <Text>Окончание: {trip.endDate ?? 'не указано'}</Text>
-                <Text>Текущая: {trip.current ? 'да' : 'нет'}</Text>
-                <Text>Теги:</Text>
+                <Text>{t('trips.tripId')}: {trip.id}</Text>
+                <Text>{trip.description ?? t('common.notSpecified')}</Text>
+                <Text>{t('trips.start')}: {trip.startDate ?? t('common.notSpecified')}</Text>
+                <Text>{t('trips.end')}: {trip.endDate ?? t('common.notSpecified')}</Text>
+                <Text>
+                  {t('trips.current')}: {trip.current ? t('common.yes') : t('common.no')}
+                </Text>
+                <Text>{t('trips.tags')}:</Text>
                 <View style={styles.tagRow}>
                   {tripTags.length > 0 ? (
                     tripTags.map((tag) => (
@@ -235,7 +239,7 @@ export default function TripDetailsScreen() {
                       </Chip>
                     ))
                   ) : (
-                    <Text>нет</Text>
+                    <Text>{t('trips.tagsNone')}</Text>
                   )}
                 </View>
               </Card.Content>
@@ -247,7 +251,7 @@ export default function TripDetailsScreen() {
                   contentStyle={styles.tripActionContent}
                   labelStyle={styles.tripActionLabel}
                 >
-                  Добавить места
+                  {t('trips.addPlaces')}
                 </Button>
                 <Button
                   mode="outlined"
@@ -256,21 +260,21 @@ export default function TripDetailsScreen() {
                   contentStyle={styles.tripActionContent}
                   labelStyle={styles.tripActionLabel}
                 >
-                  Удалить поездку
+                  {t('trips.deleteTrip')}
                 </Button>
               </Card.Actions>
             </Card>
           )}
 
           <List.Section>
-            <List.Subheader>Маршрут</List.Subheader>
-            {items.length === 0 && <Text>Места не добавлены.</Text>}
+            <List.Subheader>{t('trips.route')}</List.Subheader>
+            {items.length === 0 && <Text>{t('trips.placesNotAdded')}</Text>}
             {items.map((item, index) => (
               <Card key={item.id} style={styles.placeCard}>
                 <Card.Title
-                  title={item.place?.name ?? 'Неизвестное место'}
+                  title={item.place?.name ?? t('common.notSpecified')}
                   subtitle={
-                    item.place?.description ?? 'Без описания'
+                    item.place?.description ?? t('common.notSpecified')
                   }
                   right={() => (
                     <View style={styles.cardRight}>
@@ -289,17 +293,19 @@ export default function TripDetailsScreen() {
                 />
                 <Card.Content style={styles.cardContent}>
                   <View style={styles.switchRow}>
-                    <Text>Посещено</Text>
+                    <Text>{t('trips.visited')}</Text>
                     <Switch
                       value={item.visited}
                       onValueChange={(value) => toggleVisited(item, value)}
                     />
                   </View>
                   <Text>
-                    Дата визита: {formatDateTime(item.visitDate)}
+                    {t('trips.visitDate')}: {formatDateTime(item.visitDate, t)}
                   </Text>
-                  <Text>Заметки: {item.notes ?? 'нет'}</Text>
-                  <Text>Фото:</Text>
+                  <Text>
+                    {t('trips.notes')}: {item.notes ?? t('trips.tagsNone')}
+                  </Text>
+                  <Text>{t('trips.photos')}:</Text>
                   {item.photos.length > 0 ? (
                     <View style={styles.photos}>
                       {item.photos.map((photo, photoIndex) => (
@@ -322,15 +328,15 @@ export default function TripDetailsScreen() {
                       ))}
                     </View>
                   ) : (
-                    <Text>нет</Text>
+                    <Text>{t('trips.tagsNone')}</Text>
                   )}
                 </Card.Content>
                 <Card.Actions style={styles.cardActions}>
                   <Button mode="outlined" onPress={() => openNotes(item)}>
-                    Заметки/Фото
+                    {t('trips.notesPhotos')}
                   </Button>
                   <Button mode="outlined" onPress={() => handleRemove(item.id)}>
-                    Удалить
+                    {t('common.delete')}
                   </Button>
                 </Card.Actions>
               </Card>
@@ -343,10 +349,10 @@ export default function TripDetailsScreen() {
             visible={Boolean(noteDialog)}
             onDismiss={() => setNoteDialog(null)}
           >
-            <Dialog.Title>Заметки и фото</Dialog.Title>
+          <Dialog.Title>{t('trips.openNotesTitle')}</Dialog.Title>
             <Dialog.Content>
               <TextInput
-                label="Заметки"
+              label={t('trips.notes')}
                 value={noteDialog?.notes ?? ''}
                 onChangeText={(value) =>
                   setNoteDialog((prev) => (prev ? { ...prev, notes: value } : prev))
@@ -356,7 +362,7 @@ export default function TripDetailsScreen() {
                 style={styles.dialogInput}
               />
               <TextInput
-                label="Теги"
+                label={t('trips.tags')}
                 value={noteDialog?.tagsInput ?? ''}
                 onChangeText={(value) =>
                   setNoteDialog((prev) =>
@@ -365,10 +371,10 @@ export default function TripDetailsScreen() {
                 }
                 mode="outlined"
                 style={styles.dialogInput}
-                placeholder="вид, обед, музей"
+                placeholder={t('trips.noteTagsPlaceholder')}
               />
               <Button mode="outlined" onPress={handleAddPhoto}>
-                Сделать фото
+                {t('trips.takePhoto')}
               </Button>
               {noteDialog && noteDialog.photos.length > 0 ? (
                 <View style={styles.photos}>
@@ -386,12 +392,12 @@ export default function TripDetailsScreen() {
                   ))}
                 </View>
               ) : (
-                <Text>Фото не добавлены.</Text>
+                <Text>{t('trips.photoMissing')}</Text>
               )}
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={() => setNoteDialog(null)}>Отмена</Button>
-              <Button onPress={saveNotes}>Сохранить</Button>
+            <Button onPress={() => setNoteDialog(null)}>{t('common.cancel')}</Button>
+            <Button onPress={saveNotes}>{t('common.save')}</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
@@ -401,13 +407,13 @@ export default function TripDetailsScreen() {
             visible={deleteDialogVisible}
             onDismiss={() => setDeleteDialogVisible(false)}
           >
-            <Dialog.Title>Удалить поездку?</Dialog.Title>
+          <Dialog.Title>{t('trips.deleteConfirmTitle')}</Dialog.Title>
             <Dialog.Content>
-              <Text>Все места в маршруте будут удалены.</Text>
+            <Text>{t('trips.deleteConfirmText')}</Text>
             </Dialog.Content>
             <Dialog.Actions>
               <Button onPress={() => setDeleteDialogVisible(false)}>
-                Отмена
+              {t('common.cancel')}
               </Button>
               <Button
                 onPress={async () => {
@@ -415,7 +421,7 @@ export default function TripDetailsScreen() {
                   await handleDeleteTrip();
                 }}
               >
-                Удалить
+              {t('common.delete')}
               </Button>
             </Dialog.Actions>
           </Dialog>
@@ -548,9 +554,12 @@ const styles = StyleSheet.create({
   },
 });
 
-const formatDateTime = (value: string | null): string => {
+const formatDateTime = (
+  value: string | null,
+  t: (key: string) => string
+): string => {
   if (!value) {
-    return '—';
+    return t('trips.visitDatePlaceholder');
   }
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();

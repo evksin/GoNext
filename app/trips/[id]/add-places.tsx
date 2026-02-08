@@ -8,20 +8,20 @@ import {
   Snackbar,
   Text,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
 import { AppHeader } from '../../../src/components/AppHeader';
 import { listPlaces } from '../../../src/data/places';
 import {
   addPlaceToTrip,
-  getTripPlaceColumnNames,
-  getTripPlaceCounts,
   listTripPlaces,
 } from '../../../src/data/trips';
 import { Place } from '../../../src/models/types';
 
 export default function TripAddPlacesScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
   const tripId = rawId ? Number(rawId) : null;
@@ -33,7 +33,7 @@ export default function TripAddPlacesScreen() {
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
-      setMessage('Некорректный идентификатор поездки.');
+      setMessage(t('trips.invalidId'));
       return;
     }
     try {
@@ -45,9 +45,9 @@ export default function TripAddPlacesScreen() {
       setPlaces(allPlaces.filter((place) => !existing.has(place.id)));
       setSelectedIds(new Set());
     } catch {
-      setMessage('Не удалось загрузить места.');
+      setMessage(t('places.loadError'));
     }
-  }, [tripId]);
+  }, [tripId, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,11 +71,11 @@ export default function TripAddPlacesScreen() {
 
   const handleAdd = async () => {
     if (!tripId || Number.isNaN(tripId)) {
-      setMessage('Некорректный идентификатор поездки.');
+      setMessage(t('trips.invalidId'));
       return;
     }
     if (selectedIds.size === 0) {
-      setMessage('Выберите хотя бы одно место.');
+      setMessage(t('trips.selectAtLeastOne'));
       return;
     }
     try {
@@ -86,45 +86,47 @@ export default function TripAddPlacesScreen() {
       );
       const afterCount = (await listTripPlaces(tripId)).length;
       if (afterCount <= beforeCount) {
-        setMessage('Места не добавлены.');
+        setMessage(t('trips.placesNotAdded'));
         return;
       }
-      setMessage(`Места добавлены: ${insertedIds.length}`);
+      setMessage(t('trips.addSuccess', { count: insertedIds.length }));
       setAddedSuccess(true);
       loadData();
     } catch (error) {
       console.error('Add places failed:', error);
-      setMessage('Не удалось добавить места.');
+      setMessage(t('trips.addFail'));
     }
   };
 
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <AppHeader title="Добавить места" />
+        <AppHeader title={t('trips.addPlacesTitle')} />
 
         <View style={styles.content}>
           <View style={styles.actionBar}>
-            <Text>Выбрано: {selectedIds.size}</Text>
+            <Text>
+              {t('common.selected')}: {selectedIds.size}
+            </Text>
             <Button
               mode="contained"
               onPress={handleAdd}
               disabled={selectedIds.size === 0}
             >
-              Добавить выбранные
+              {t('trips.addPlaces')}
             </Button>
             {addedSuccess && (
               <Button
                 mode="outlined"
                 onPress={() => router.replace(`/trips/${tripId}`)}
               >
-                Готово
+                {t('common.done')}
               </Button>
             )}
           </View>
 
           <ScrollView contentContainerStyle={styles.listContent}>
-            {places.length === 0 && <Text>Нет доступных мест.</Text>}
+            {places.length === 0 && <Text>{t('places.listEmpty')}</Text>}
             {places.length > 0 && (
               <List.Section>
                 {places.map((place) => {
@@ -133,7 +135,7 @@ export default function TripAddPlacesScreen() {
                     <List.Item
                       key={place.id}
                       title={place.name}
-                      description={place.description ?? 'Без описания'}
+                      description={place.description ?? t('common.notSpecified')}
                       onPress={() => togglePlace(place.id)}
                       left={() => (
                         <Checkbox

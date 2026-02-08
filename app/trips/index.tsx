@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Appbar, FAB, List, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -10,6 +11,7 @@ import { Trip } from '../../src/models/types';
 
 export default function TripsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,9 +21,9 @@ export default function TripsScreen() {
       const data = await listTrips();
       setTrips(data);
     } catch {
-      setError('Не удалось загрузить поездки.');
+      setError(t('trips.loadError'));
     }
-  }, []);
+  }, [t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -33,7 +35,7 @@ export default function TripsScreen() {
     <ScreenBackground>
       <View style={styles.screen}>
         <AppHeader
-          title="Поездки"
+          title={t('trips.title')}
           rightActions={
             <Appbar.Action icon="plus" onPress={() => router.push('/trips/new')} />
           }
@@ -41,7 +43,7 @@ export default function TripsScreen() {
 
         <View style={styles.content}>
           {error && <Text>{error}</Text>}
-          {!error && trips.length === 0 && <Text>Поездок пока нет.</Text>}
+          {!error && trips.length === 0 && <Text>{t('trips.listEmpty')}</Text>}
           {!error && trips.length > 0 && (
             <List.Section>
               {trips.map((trip) => (
@@ -49,7 +51,7 @@ export default function TripsScreen() {
                   key={trip.id}
                   title={trip.title}
                   description={
-                    trip.description ?? (trip.current ? 'Текущая поездка' : '')
+                    trip.description ?? (trip.current ? t('trips.currentTrip') : '')
                   }
                   onPress={() => router.push(`/trips/${trip.id}`)}
                 />

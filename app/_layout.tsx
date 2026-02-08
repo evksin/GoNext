@@ -7,6 +7,7 @@ import { ActivityIndicator, PaperProvider } from 'react-native-paper';
 import { initDb } from '../src/db';
 import { ensureAppDirectories } from '../src/services/storage';
 import { SettingsProvider, useSettings } from '../src/contexts/SettingsContext';
+import { initI18n } from '../src/i18n';
 
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
@@ -16,9 +17,10 @@ export default function RootLayout() {
 
     const bootstrap = async () => {
       try {
+        await initI18n();
         if (Platform.OS !== 'web') {
-        await initDb();
-        await ensureAppDirectories();
+          await initDb();
+          await ensureAppDirectories();
         }
       } catch (error) {
         console.error('Init error:', error);

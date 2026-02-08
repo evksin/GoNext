@@ -74,7 +74,7 @@ export const clearDatabase = async (): Promise<void> => {
 export const importDatabase = async (rawJson: string): Promise<void> => {
   const parsed = JSON.parse(rawJson) as BackupData;
   if (!parsed || parsed.version !== 1 || !parsed.data) {
-    throw new Error('Неверный формат данных.');
+    throw new Error('INVALID_BACKUP_FORMAT');
   }
   const db = await getDb();
   await db.execAsync('BEGIN;');

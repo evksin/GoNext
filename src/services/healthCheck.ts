@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import i18next from 'i18next';
 
 import { getDb } from '../db';
 import { ensureAppDirectories, getPhotosDirectory } from './storage';
@@ -14,9 +15,9 @@ export const runOfflineCheck = async (): Promise<HealthItem[]> => {
   if (Platform.OS === 'web') {
     return [
       {
-        label: 'Офлайн-режим',
+        label: i18next.t('health.offline'),
         ok: false,
-        details: 'В браузере SQLite недоступен.',
+        details: i18next.t('health.offlineWeb'),
       },
     ];
   }
@@ -33,15 +34,18 @@ export const runOfflineCheck = async (): Promise<HealthItem[]> => {
       'SELECT COUNT(*) as count FROM trip;'
     );
     items.push({
-      label: 'Локальная база данных',
+      label: i18next.t('health.db'),
       ok: true,
-      details: `мест: ${placeCount?.count ?? 0}, поездок: ${tripCount?.count ?? 0}`,
+      details: i18next.t('health.dbDetails', {
+        places: placeCount?.count ?? 0,
+        trips: tripCount?.count ?? 0,
+      }),
     });
   } catch (error) {
     items.push({
-      label: 'Локальная база данных',
+      label: i18next.t('health.db'),
       ok: false,
-      details: error instanceof Error ? error.message : 'ошибка',
+      details: error instanceof Error ? error.message : i18next.t('common.errorUnknown'),
     });
   }
 
@@ -50,22 +54,22 @@ export const runOfflineCheck = async (): Promise<HealthItem[]> => {
     const dir = getPhotosDirectory();
     const files = await FileSystem.readDirectoryAsync(dir);
     items.push({
-      label: 'Локальное хранилище фото',
+      label: i18next.t('health.storage'),
       ok: true,
-      details: `файлов: ${files.length}`,
+      details: i18next.t('health.storageDetails', { count: files.length }),
     });
   } catch (error) {
     items.push({
-      label: 'Локальное хранилище фото',
+      label: i18next.t('health.storage'),
       ok: false,
-      details: error instanceof Error ? error.message : 'ошибка',
+      details: error instanceof Error ? error.message : i18next.t('common.errorUnknown'),
     });
   }
 
   items.push({
-    label: 'Офлайн-режим',
+    label: i18next.t('health.offline'),
     ok: true,
-    details: 'Приложение работает без сети (SQLite + файлы).',
+    details: i18next.t('health.offlineOk'),
   });
 
   return items;

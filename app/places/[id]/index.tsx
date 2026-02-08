@@ -12,6 +12,7 @@ import {
   Snackbar,
   Text,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { deletePlace, getPlaceById } from '../../../src/data/places';
 import { listPlaceTags } from '../../../src/data/tags';
@@ -21,6 +22,7 @@ import { Place } from '../../../src/models/types';
 
 export default function PlaceDetailsScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ id?: string }>();
   const placeId = useMemo(
     () => (params.id ? Number(params.id) : null),
@@ -34,21 +36,21 @@ export default function PlaceDetailsScreen() {
 
   const loadPlace = useCallback(async () => {
     if (!placeId || Number.isNaN(placeId)) {
-      setMessage('Некорректный идентификатор места.');
+      setMessage(t('places.invalidId'));
       return;
     }
     try {
       const data = await getPlaceById(placeId);
       if (!data) {
-        setMessage('Место не найдено.');
+        setMessage(t('places.notFound'));
         return;
       }
       setPlace(data);
       setTags(await listPlaceTags(data.id));
     } catch {
-      setMessage('Не удалось загрузить место.');
+      setMessage(t('places.loadFail'));
     }
-  }, [placeId]);
+  }, [placeId, t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -59,14 +61,14 @@ export default function PlaceDetailsScreen() {
   const handleOpenMap = async () => {
     const coords = getPlaceCoordinates(place);
     if (!coords) {
-      setMessage('Координаты не указаны.');
+      setMessage(t('nextPlace.coordsMissing'));
       return;
     }
     const url = `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
     try {
       await Linking.openURL(url);
     } catch {
-      setMessage('Не удалось открыть карту.');
+      setMessage(t('nextPlace.mapFail'));
     }
   };
 
@@ -78,7 +80,7 @@ export default function PlaceDetailsScreen() {
       await deletePlace(place.id);
       router.back();
     } catch {
-      setMessage('Не удалось удалить место.');
+      setMessage(t('places.deleteFail'));
     }
   };
 
@@ -86,7 +88,7 @@ export default function PlaceDetailsScreen() {
     <ScreenBackground>
       <View style={styles.screen}>
         <AppHeader
-          title="Место"
+          title={t('places.title')}
           rightActions={
             place ? (
               <Appbar.Action
@@ -103,18 +105,18 @@ export default function PlaceDetailsScreen() {
               <Card.Title title={place.name} titleStyle={styles.titleText} />
               <Card.Content style={styles.cardContent}>
                 <Text style={styles.bodyText}>
-                  {place.description ?? 'Без описания'}
+                  {place.description ?? t('common.notSpecified')}
                 </Text>
                 <Text style={styles.bodyText}>
-                  Хочу посетить: {place.visitLater ? 'да' : 'нет'}
+                  {t('places.visitLater')}: {place.visitLater ? t('common.yes') : t('common.no')}
                 </Text>
                 <Text style={styles.bodyText}>
-                  Понравилось: {place.liked ? 'да' : 'нет'}
+                  {t('places.liked')}: {place.liked ? t('common.yes') : t('common.no')}
                 </Text>
                 <Text style={styles.bodyText}>
-                  Координаты: {formatCoordinates(place)}
+                  {t('nextPlace.coordinates')}: {formatCoordinates(place, t)}
                 </Text>
-                <Text style={styles.bodyText}>Теги:</Text>
+                <Text style={styles.bodyText}>{t('places.tags')}:</Text>
                 <View style={styles.tagRow}>
                   {tags.length > 0 ? (
                     tags.map((tag) => (
@@ -123,11 +125,11 @@ export default function PlaceDetailsScreen() {
                       </Chip>
                     ))
                   ) : (
-                    <Text style={styles.bodyText}>нет</Text>
+                    <Text style={styles.bodyText}>{t('places.tagsNone')}</Text>
                   )}
                 </View>
                 <Text style={styles.bodyText}>
-                  Создано: {new Date(place.createdAt).toLocaleString()}
+                  {t('places.createdAt')}: {new Date(place.createdAt).toLocaleString()}
                 </Text>
               </Card.Content>
               <Card.Actions style={styles.cardActions}>
@@ -137,7 +139,7 @@ export default function PlaceDetailsScreen() {
                   contentStyle={styles.actionButton}
                   labelStyle={styles.actionLabel}
                 >
-                  Открыть на карте
+                  {t('places.openMap')}
                 </Button>
                 <Button
                   mode="outlined"
@@ -145,12 +147,12 @@ export default function PlaceDetailsScreen() {
                   contentStyle={styles.actionButton}
                   labelStyle={styles.actionLabel}
                 >
-                  Удалить
+                  {t('places.delete')}
                 </Button>
               </Card.Actions>
             </Card>
           ) : (
-            <Text>Загрузка...</Text>
+            <Text>{t('common.loading')}</Text>
           )}
         </View>
 
@@ -167,21 +169,19 @@ export default function PlaceDetailsScreen() {
             visible={confirmVisible}
             onDismiss={() => setConfirmVisible(false)}
           >
-            <Dialog.Title>Удалить место?</Dialog.Title>
+          <Dialog.Title>{t('places.deleteConfirmTitle')}</Dialog.Title>
             <Dialog.Content>
-              <Text>
-                Это действие нельзя отменить.
-              </Text>
+            <Text>{t('places.deleteConfirmText')}</Text>
             </Dialog.Content>
             <Dialog.Actions>
-              <Button onPress={() => setConfirmVisible(false)}>Отмена</Button>
+            <Button onPress={() => setConfirmVisible(false)}>{t('common.cancel')}</Button>
               <Button
                 onPress={async () => {
                   setConfirmVisible(false);
                   await handleDelete();
                 }}
               >
-                Удалить
+              {t('common.delete')}
               </Button>
             </Dialog.Actions>
           </Dialog>
@@ -213,10 +213,10 @@ const getPlaceCoordinates = (
   return null;
 };
 
-const formatCoordinates = (place: Place | null): string => {
+const formatCoordinates = (place: Place | null, t: (key: string) => string): string => {
   const coords = getPlaceCoordinates(place);
   if (!coords) {
-    return 'не указаны';
+    return t('nextPlace.coordsNotSpecified');
   }
   return `${coords.lat}, ${coords.lng}`;
 };

@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
 import { Button, Card, Text } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
 import { AppHeader } from '../../src/components/AppHeader';
@@ -12,6 +13,7 @@ import { Place, Trip, TripPlace } from '../../src/models/types';
 
 export default function NextPlaceScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [nextItem, setNextItem] = useState<TripPlace | null>(null);
   const [place, setPlace] = useState<Place | null>(null);
@@ -36,9 +38,9 @@ export default function NextPlaceScreen() {
       const placeData = await getPlaceById(nextTripPlace.placeId);
       setPlace(placeData);
     } catch {
-      setMessage('Не удалось загрузить следующее место.');
+      setMessage(t('nextPlace.loadFail'));
     }
-  }, []);
+  }, [t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -49,33 +51,33 @@ export default function NextPlaceScreen() {
   const handleOpenMap = async () => {
     const coords = getPlaceCoordinates(place);
     if (!coords) {
-      setMessage('Координаты не указаны.');
+      setMessage(t('nextPlace.coordsMissing'));
       return;
     }
     const url = `https://www.google.com/maps?q=${coords.lat},${coords.lng}`;
     try {
       await Linking.openURL(url);
     } catch {
-      setMessage('Не удалось открыть карту.');
+      setMessage(t('nextPlace.mapFail'));
     }
   };
 
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <AppHeader title="Следующее место" />
+        <AppHeader title={t('nextPlace.title')} />
 
         <View style={styles.content}>
           {message && <Text>{message}</Text>}
           {!message && !trip && (
             <Card>
-              <Card.Title title="Нет текущей поездки" />
+              <Card.Title title={t('nextPlace.noCurrentTrip')} />
               <Card.Content>
-                <Text>Отметьте поездку как текущую.</Text>
+                <Text>{t('nextPlace.markCurrentTrip')}</Text>
               </Card.Content>
               <Card.Actions>
                 <Button mode="contained" onPress={() => router.push('/trips')}>
-                  К поездкам
+                  {t('trips.openTrip')}
                 </Button>
               </Card.Actions>
             </Card>
@@ -85,7 +87,7 @@ export default function NextPlaceScreen() {
             <Card>
               <Card.Title title={trip.title} />
               <Card.Content>
-                <Text>Все места посещены.</Text>
+                <Text>{t('nextPlace.allVisited')}</Text>
               </Card.Content>
             </Card>
           )}
@@ -94,24 +96,24 @@ export default function NextPlaceScreen() {
             <Card>
               <Card.Title title={place.name} subtitle={trip.title} />
               <Card.Content style={styles.cardContent}>
-                <Text>{place.description ?? 'Без описания'}</Text>
+                <Text>{place.description ?? t('common.notSpecified')}</Text>
                 <Text>
-                  Координаты:{' '}
+                  {t('nextPlace.coordinates')}{' '}
                   {place.ddLat != null && place.ddLng != null
                     ? `${place.ddLat}, ${place.ddLng}`
-                    : place.ddText ?? 'не указаны'}
+                    : place.ddText ?? t('nextPlace.coordsNotSpecified')}
                 </Text>
               </Card.Content>
               <Card.Actions style={styles.cardActions}>
                 <Button mode="contained" onPress={handleOpenMap} style={styles.actionButton}>
-                  Открыть на карте
+                  {t('nextPlace.openMap')}
                 </Button>
                 <Button
                   mode="outlined"
                   onPress={() => router.push(`/places/${place.id}`)}
                   style={styles.actionButton}
                 >
-                  Открыть место
+                  {t('nextPlace.openPlace')}
                 </Button>
               </Card.Actions>
             </Card>

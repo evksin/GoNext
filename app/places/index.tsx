@@ -8,6 +8,7 @@ import {
   List,
   Text,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { listPlaces } from '../../src/data/places';
 import { Place } from '../../src/models/types';
@@ -16,6 +17,7 @@ import { AppHeader } from '../../src/components/AppHeader';
 
 export default function PlacesListScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,11 +29,11 @@ export default function PlacesListScreen() {
       const data = await listPlaces();
       setPlaces(data);
     } catch {
-      setError('Не удалось загрузить список мест.');
+      setError(t('places.loadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useFocusEffect(
     useCallback(() => {
@@ -43,7 +45,7 @@ export default function PlacesListScreen() {
     <ScreenBackground>
       <View style={styles.screen}>
         <AppHeader
-          title="Места"
+          title={t('places.title')}
           rightActions={
             <Appbar.Action
               icon="plus"
@@ -58,7 +60,7 @@ export default function PlacesListScreen() {
           {!loading && error && <Text>{error}</Text>}
 
           {!loading && !error && places.length === 0 && (
-            <Text>Пока нет сохранённых мест.</Text>
+            <Text>{t('places.listEmpty')}</Text>
           )}
 
           {!loading && !error && places.length > 0 && (
@@ -67,7 +69,7 @@ export default function PlacesListScreen() {
                 <List.Item
                   key={place.id}
                   title={place.name}
-                  description={place.description ?? 'Без описания'}
+                  description={place.description ?? t('common.notSpecified')}
                   onPress={() => router.push(`/places/${place.id}`)}
                 />
               ))}

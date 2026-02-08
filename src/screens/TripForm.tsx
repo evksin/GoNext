@@ -13,6 +13,7 @@ import {
 
 import { getTripById, saveTrip } from '../data/trips';
 import { listTripTags, parseTagInput, setTripTags } from '../data/tags';
+import { useTranslation } from 'react-i18next';
 
 type TripFormProps = {
   tripId?: number | null;
@@ -20,6 +21,7 @@ type TripFormProps = {
 };
 
 export function TripForm({ tripId, onSaved }: TripFormProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -46,7 +48,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
     try {
       const trip = await getTripById(tripId);
       if (!trip) {
-        setMessage('Поездка не найдена.');
+        setMessage(t('trips.notFound'));
         return;
       }
       setTitle(trip.title);
@@ -57,9 +59,9 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
       const tags = await listTripTags(trip.id);
       setTagsInput(tags.join(', '));
     } catch {
-      setMessage('Не удалось загрузить поездку.');
+      setMessage(t('trips.loadFail'));
     }
-  }, [tripId]);
+  }, [tripId, t]);
 
   useEffect(() => {
     loadTrip();
@@ -68,7 +70,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
   const handleSave = async () => {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      setMessage('Введите название поездки.');
+      setMessage(t('trips.titleRequired'));
       return;
     }
 
@@ -85,7 +87,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
       await setTripTags(savedId, parseTagInput(tagsInput));
       onSaved();
     } catch {
-      setMessage('Не удалось сохранить поездку.');
+      setMessage(t('trips.saveFail'));
     } finally {
       setLoading(false);
     }
@@ -94,14 +96,14 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
   return (
     <View style={styles.form}>
       <TextInput
-        label="Название"
+        label={t('trips.titleLabel')}
         value={title}
         onChangeText={setTitle}
         mode="outlined"
       />
 
       <TextInput
-        label="Описание"
+        label={t('trips.descriptionLabel')}
         value={description}
         onChangeText={setDescription}
         mode="outlined"
@@ -110,12 +112,12 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
       />
 
       <TextInput
-        label="Дата начала"
+        label={t('trips.startDate')}
         value={startDate}
         onChangeText={setStartDate}
         mode="outlined"
         editable={Platform.OS === 'web'}
-        placeholder="ГГГГ-ММ-ДД"
+        placeholder={t('common.dateFormat')}
         right={
           Platform.OS === 'web'
             ? undefined
@@ -129,12 +131,12 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
       />
 
       <TextInput
-        label="Дата окончания"
+        label={t('trips.endDate')}
         value={endDate}
         onChangeText={setEndDate}
         mode="outlined"
         editable={Platform.OS === 'web'}
-        placeholder="ГГГГ-ММ-ДД"
+        placeholder={t('common.dateFormat')}
         right={
           Platform.OS === 'web'
             ? undefined
@@ -148,16 +150,16 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
       />
 
       <View style={styles.switchRow}>
-        <Text>Текущая поездка</Text>
+        <Text>{t('trips.currentTrip')}</Text>
         <Switch value={current} onValueChange={setCurrent} />
       </View>
 
       <TextInput
-        label="Теги"
+        label={t('trips.tags')}
         value={tagsInput}
         onChangeText={setTagsInput}
         mode="outlined"
-        placeholder="тур, зима, семья"
+        placeholder={t('trips.tagsPlaceholder')}
       />
 
       <Button
@@ -166,7 +168,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
         loading={loading}
         style={styles.saveButton}
       >
-        Сохранить
+        {t('common.save')}
       </Button>
 
       {picker.visible && Platform.OS !== 'web' && (

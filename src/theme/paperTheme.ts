@@ -3,6 +3,21 @@ import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 export type ThemeMode = 'light' | 'dark';
 export type FontScale = 'normal' | 'large';
 
+export const PRIMARY_COLORS = [
+  '#2E7D32',
+  '#1E88E5',
+  '#6A1B9A',
+  '#C62828',
+  '#EF6C00',
+  '#00897B',
+  '#5D4037',
+  '#546E7A',
+  '#F9A825',
+  '#3949AB',
+] as const;
+
+export type PrimaryColor = (typeof PRIMARY_COLORS)[number];
+
 const scaleFont = (
   value: number,
   scale: FontScale
@@ -87,14 +102,18 @@ const buildFonts = (base: typeof MD3LightTheme, scale: FontScale) => ({
   },
 });
 
-export const createPaperTheme = (mode: ThemeMode, scale: FontScale) => {
+export const createPaperTheme = (
+  mode: ThemeMode,
+  scale: FontScale,
+  primaryColor: PrimaryColor
+) => {
   const base = mode === 'dark' ? MD3DarkTheme : MD3LightTheme;
   return {
     ...base,
     fonts: buildFonts(base, scale),
     colors: {
       ...base.colors,
-      primary: '#2E7D32',
+      primary: primaryColor,
     },
   };
 };

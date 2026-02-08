@@ -7,7 +7,7 @@ let dbPromise: Promise<SQLiteDatabase> | null = null;
 
 const openDatabase = async (): Promise<SQLiteDatabase> => {
   if (Platform.OS === 'web') {
-    throw new Error('SQLite не поддерживается в браузере.');
+    throw new Error('SQLite is not supported on web.');
   }
   const SQLite = await import('expo-sqlite');
   return SQLite.openDatabaseAsync('gonext.db');

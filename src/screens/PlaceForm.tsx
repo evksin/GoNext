@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
 } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
 
 import { getPlaceById, savePlace } from '../data/places';
 import { listPlaceTags, parseTagInput, setPlaceTags } from '../data/tags';
@@ -17,6 +18,7 @@ type PlaceFormProps = {
 };
 
 export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [visitLater, setVisitLater] = useState(true);
@@ -44,7 +46,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
     try {
       const place = await getPlaceById(placeId);
       if (!place) {
-        setMessage('Место не найдено.');
+        setMessage(t('places.notFound'));
         return;
       }
       setName(place.name);
@@ -60,9 +62,9 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       const tags = await listPlaceTags(place.id);
       setTagsInput(tags.join(', '));
     } catch {
-      setMessage('Не удалось загрузить место.');
+      setMessage(t('places.loadFail'));
     }
-  }, [placeId]);
+  }, [placeId, t]);
 
   useEffect(() => {
     if (!placeId) {
@@ -75,13 +77,13 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   const handleSave = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setMessage('Введите название места.');
+      setMessage(t('places.nameRequired'));
       return;
     }
 
     const parsed = parseCoordinates(coordinates);
     if (!parsed && coordinates.trim()) {
-      setMessage('Введите координаты в формате "широта, долгота".');
+      setMessage(t('places.coordinatesHint'));
       return;
     }
 
@@ -101,7 +103,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       await setPlaceTags(savedId, parseTagInput(tagsInput));
       onSaved();
     } catch {
-      setMessage('Не удалось сохранить место.');
+      setMessage(t('places.saveFail'));
     } finally {
       setLoading(false);
     }
@@ -110,14 +112,14 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   return (
     <View style={styles.form}>
       <TextInput
-        label="Название"
+        label={t('places.name')}
         value={name}
         onChangeText={setName}
         mode="outlined"
       />
 
       <TextInput
-        label="Описание"
+        label={t('places.description')}
         value={description}
         onChangeText={setDescription}
         mode="outlined"
@@ -126,17 +128,17 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       />
 
       <View style={styles.switchRow}>
-        <Text>Хочу посетить</Text>
+        <Text>{t('places.visitLater')}</Text>
         <Switch value={visitLater} onValueChange={setVisitLater} />
       </View>
 
       <View style={styles.switchRow}>
-        <Text>Понравилось</Text>
+        <Text>{t('places.liked')}</Text>
         <Switch value={liked} onValueChange={setLiked} />
       </View>
 
       <TextInput
-        label="Координаты (DD)"
+        label={t('places.coordinates')}
         value={coordinates}
         onChangeText={(value) => {
           setCoordinates(value);
@@ -148,7 +150,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
           }
         }}
         mode="outlined"
-        placeholder="55.7558, 37.6176"
+        placeholder={t('places.coordinatesPlaceholder')}
         autoCorrect={false}
         autoCapitalize="none"
         autoComplete="off"
@@ -170,11 +172,11 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
       />
 
       <TextInput
-        label="Теги"
+        label={t('places.tags')}
         value={tagsInput}
         onChangeText={setTagsInput}
         mode="outlined"
-        placeholder="музей, прогулка, еда"
+        placeholder={t('places.tagsPlaceholder')}
       />
 
       <Button
@@ -183,7 +185,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         loading={loading}
         style={styles.saveButton}
       >
-        Сохранить
+        {t('common.save')}
       </Button>
 
       <Snackbar
