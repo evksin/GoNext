@@ -33,7 +33,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-9';
+  const buildMarker = 'build:2026-02-07-10';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -132,7 +132,7 @@ export default function TripAddPlacesScreen() {
 
   return (
     <ScreenBackground>
-      <View style={styles.screen}>
+      <View style={styles.screen} pointerEvents="box-none">
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Добавить места" />
@@ -165,7 +165,7 @@ export default function TripAddPlacesScreen() {
           )}
         </View>
 
-        <Surface style={styles.actions} elevation={4}>
+        <Surface style={styles.actions} elevation={8} pointerEvents="auto">
           <Text>Выбрано: {selectedIds.size}</Text>
           <Text>{statusText || 'status: ожидаю'}</Text>
           {infoText ? <Text>{infoText}</Text> : null}
@@ -209,6 +209,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingBottom: 160,
+    zIndex: 1,
   },
   actions: {
     position: 'absolute',
@@ -218,6 +219,8 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: 'rgba(255,255,255,0.95)',
     gap: 6,
+    zIndex: 10,
+    elevation: 10,
   },
   addButton: {
     backgroundColor: '#2E7D32',
