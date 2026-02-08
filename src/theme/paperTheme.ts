@@ -1,27 +1,100 @@
-import { MD3LightTheme } from 'react-native-paper';
+import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 
-export const paperTheme = {
-  ...MD3LightTheme,
-  fonts: {
-    ...MD3LightTheme.fonts,
-    displayLarge: { ...MD3LightTheme.fonts.displayLarge, fontSize: 34, lineHeight: 40 },
-    displayMedium: { ...MD3LightTheme.fonts.displayMedium, fontSize: 30, lineHeight: 36 },
-    displaySmall: { ...MD3LightTheme.fonts.displaySmall, fontSize: 26, lineHeight: 32 },
-    headlineLarge: { ...MD3LightTheme.fonts.headlineLarge, fontSize: 24, lineHeight: 30 },
-    headlineMedium: { ...MD3LightTheme.fonts.headlineMedium, fontSize: 22, lineHeight: 28 },
-    headlineSmall: { ...MD3LightTheme.fonts.headlineSmall, fontSize: 20, lineHeight: 26 },
-    titleLarge: { ...MD3LightTheme.fonts.titleLarge, fontSize: 22, lineHeight: 28 },
-    titleMedium: { ...MD3LightTheme.fonts.titleMedium, fontSize: 20, lineHeight: 26 },
-    titleSmall: { ...MD3LightTheme.fonts.titleSmall, fontSize: 18, lineHeight: 24 },
-    labelLarge: { ...MD3LightTheme.fonts.labelLarge, fontSize: 16, lineHeight: 22 },
-    labelMedium: { ...MD3LightTheme.fonts.labelMedium, fontSize: 14, lineHeight: 20 },
-    labelSmall: { ...MD3LightTheme.fonts.labelSmall, fontSize: 12, lineHeight: 18 },
-    bodyLarge: { ...MD3LightTheme.fonts.bodyLarge, fontSize: 18, lineHeight: 24 },
-    bodyMedium: { ...MD3LightTheme.fonts.bodyMedium, fontSize: 16, lineHeight: 22 },
-    bodySmall: { ...MD3LightTheme.fonts.bodySmall, fontSize: 14, lineHeight: 20 },
+export type ThemeMode = 'light' | 'dark';
+export type FontScale = 'normal' | 'large';
+
+const scaleFont = (
+  value: number,
+  scale: FontScale
+): number => (scale === 'large' ? Math.round(value * 1.15) : value);
+
+const buildFonts = (base: typeof MD3LightTheme, scale: FontScale) => ({
+  ...base.fonts,
+  displayLarge: {
+    ...base.fonts.displayLarge,
+    fontSize: scaleFont(34, scale),
+    lineHeight: scaleFont(40, scale),
   },
-  colors: {
-    ...MD3LightTheme.colors,
-    primary: '#2E7D32',
+  displayMedium: {
+    ...base.fonts.displayMedium,
+    fontSize: scaleFont(30, scale),
+    lineHeight: scaleFont(36, scale),
   },
+  displaySmall: {
+    ...base.fonts.displaySmall,
+    fontSize: scaleFont(26, scale),
+    lineHeight: scaleFont(32, scale),
+  },
+  headlineLarge: {
+    ...base.fonts.headlineLarge,
+    fontSize: scaleFont(24, scale),
+    lineHeight: scaleFont(30, scale),
+  },
+  headlineMedium: {
+    ...base.fonts.headlineMedium,
+    fontSize: scaleFont(22, scale),
+    lineHeight: scaleFont(28, scale),
+  },
+  headlineSmall: {
+    ...base.fonts.headlineSmall,
+    fontSize: scaleFont(20, scale),
+    lineHeight: scaleFont(26, scale),
+  },
+  titleLarge: {
+    ...base.fonts.titleLarge,
+    fontSize: scaleFont(22, scale),
+    lineHeight: scaleFont(28, scale),
+  },
+  titleMedium: {
+    ...base.fonts.titleMedium,
+    fontSize: scaleFont(20, scale),
+    lineHeight: scaleFont(26, scale),
+  },
+  titleSmall: {
+    ...base.fonts.titleSmall,
+    fontSize: scaleFont(18, scale),
+    lineHeight: scaleFont(24, scale),
+  },
+  labelLarge: {
+    ...base.fonts.labelLarge,
+    fontSize: scaleFont(16, scale),
+    lineHeight: scaleFont(22, scale),
+  },
+  labelMedium: {
+    ...base.fonts.labelMedium,
+    fontSize: scaleFont(14, scale),
+    lineHeight: scaleFont(20, scale),
+  },
+  labelSmall: {
+    ...base.fonts.labelSmall,
+    fontSize: scaleFont(12, scale),
+    lineHeight: scaleFont(18, scale),
+  },
+  bodyLarge: {
+    ...base.fonts.bodyLarge,
+    fontSize: scaleFont(18, scale),
+    lineHeight: scaleFont(24, scale),
+  },
+  bodyMedium: {
+    ...base.fonts.bodyMedium,
+    fontSize: scaleFont(16, scale),
+    lineHeight: scaleFont(22, scale),
+  },
+  bodySmall: {
+    ...base.fonts.bodySmall,
+    fontSize: scaleFont(14, scale),
+    lineHeight: scaleFont(20, scale),
+  },
+});
+
+export const createPaperTheme = (mode: ThemeMode, scale: FontScale) => {
+  const base = mode === 'dark' ? MD3DarkTheme : MD3LightTheme;
+  return {
+    ...base,
+    fonts: buildFonts(base, scale),
+    colors: {
+      ...base.colors,
+      primary: '#2E7D32',
+    },
+  };
 };

@@ -21,3 +21,19 @@ export const savePhotoToAppStorage = async (sourceUri: string): Promise<string> 
   await FileSystem.copyAsync({ from: sourceUri, to: destination });
   return destination;
 };
+
+export const clearPhotosDirectory = async (): Promise<void> => {
+  if (Platform.OS === 'web') {
+    return;
+  }
+  try {
+    const files = await FileSystem.readDirectoryAsync(photosDir);
+    await Promise.all(
+      files.map((file) =>
+        FileSystem.deleteAsync(`${photosDir}${file}`, { idempotent: true })
+      )
+    );
+  } catch {
+    // ignore missing directory or files
+  }
+};

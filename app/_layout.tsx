@@ -6,7 +6,7 @@ import { ActivityIndicator, PaperProvider } from 'react-native-paper';
 
 import { initDb } from '../src/db';
 import { ensureAppDirectories } from '../src/services/storage';
-import { paperTheme } from '../src/theme/paperTheme';
+import { SettingsProvider, useSettings } from '../src/contexts/SettingsContext';
 
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
@@ -46,10 +46,19 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <PaperProvider theme={paperTheme}>
-        <Stack screenOptions={{ headerShown: false }} />
-      </PaperProvider>
+      <SettingsProvider>
+        <RootLayoutWithTheme />
+      </SettingsProvider>
     </SafeAreaProvider>
+  );
+}
+
+function RootLayoutWithTheme() {
+  const { theme } = useSettings();
+  return (
+    <PaperProvider theme={theme}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </PaperProvider>
   );
 }
 
