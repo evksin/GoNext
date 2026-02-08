@@ -33,7 +33,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-11';
+  const buildMarker = 'build:2026-02-07-12';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -131,8 +131,8 @@ export default function TripAddPlacesScreen() {
   };
 
   return (
-    <ScreenBackground>
-      <View style={styles.screen}>
+    <View style={styles.screen}>
+      <View style={styles.plainBackground} />
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Добавить места" />
@@ -199,13 +199,17 @@ export default function TripAddPlacesScreen() {
           {message}
         </Snackbar>
       </View>
-    </ScreenBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  plainBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.85)',
   },
   content: {
     flex: 1,

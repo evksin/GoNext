@@ -12,6 +12,7 @@ export function ScreenBackground({ children }: ScreenBackgroundProps) {
       source={backgroundImage}
       style={styles.background}
       resizeMode="cover"
+      imageStyle={styles.image}
     >
       <View style={styles.content}>{children}</View>
     </ImageBackground>
@@ -24,5 +25,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  image: {
+    opacity: 1,
   },
 });
