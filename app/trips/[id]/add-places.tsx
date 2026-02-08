@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Appbar,
@@ -32,7 +32,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-6';
+  const buildMarker = 'build:2026-02-07-7';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -87,12 +87,12 @@ export default function TripAddPlacesScreen() {
       setMessage('Некорректный идентификатор поездки.');
       return;
     }
+    if (selectedIds.size === 0) {
+      setMessage('Выберите хотя бы одно место.');
+      return;
+    }
     try {
       const ids = Array.from(selectedIds);
-      if (ids.length === 0) {
-        setMessage('Выберите хотя бы одно место.');
-        return;
-      }
       setMessage(`Нажато: ${new Date().toLocaleTimeString()}`);
       const selectingText = `tripId=${tripId}, выбранные=${ids.length}`;
       setStatusText(selectingText);
@@ -173,13 +173,15 @@ export default function TripAddPlacesScreen() {
               Готово
             </Button>
           )}
-          <Button
-            mode="contained"
+          <Pressable
             onPress={handleAdd}
-            disabled={selectedIds.size === 0}
+            style={[
+              styles.addButton,
+              selectedIds.size === 0 && styles.addButtonDisabled,
+            ]}
           >
-            Добавить выбранные
-          </Button>
+            <Text style={styles.addButtonText}>Добавить выбранные</Text>
+          </Pressable>
         </View>
 
         <Snackbar
@@ -204,5 +206,17 @@ const styles = StyleSheet.create({
   },
   actions: {
     padding: 16,
+  },
+  addButton: {
+    backgroundColor: '#2E7D32',
+    paddingVertical: 12,
+    borderRadius: 24,
+    alignItems: 'center',
+  },
+  addButtonDisabled: {
+    backgroundColor: '#9E9E9E',
+  },
+  addButtonText: {
+    color: '#ffffff',
   },
 });
