@@ -94,21 +94,39 @@ export default function PlaceDetailsScreen() {
         <View style={styles.content}>
           {place ? (
             <Card>
-              <Card.Title title={place.name} />
+              <Card.Title title={place.name} titleStyle={styles.titleText} />
               <Card.Content style={styles.cardContent}>
-                <Text>{place.description ?? 'Без описания'}</Text>
-                <Text>
+                <Text style={styles.bodyText}>
+                  {place.description ?? 'Без описания'}
+                </Text>
+                <Text style={styles.bodyText}>
                   Хочу посетить: {place.visitLater ? 'да' : 'нет'}
                 </Text>
-                <Text>Понравилось: {place.liked ? 'да' : 'нет'}</Text>
-                <Text>Координаты: {formatCoordinates(place)}</Text>
-                <Text>Создано: {new Date(place.createdAt).toLocaleString()}</Text>
+                <Text style={styles.bodyText}>
+                  Понравилось: {place.liked ? 'да' : 'нет'}
+                </Text>
+                <Text style={styles.bodyText}>
+                  Координаты: {formatCoordinates(place)}
+                </Text>
+                <Text style={styles.bodyText}>
+                  Создано: {new Date(place.createdAt).toLocaleString()}
+                </Text>
               </Card.Content>
               <Card.Actions style={styles.cardActions}>
-                <Button mode="contained" onPress={handleOpenMap}>
+                <Button
+                  mode="contained"
+                  onPress={handleOpenMap}
+                  contentStyle={styles.actionButton}
+                  labelStyle={styles.actionLabel}
+                >
                   Открыть на карте
                 </Button>
-                <Button mode="outlined" onPress={() => setConfirmVisible(true)}>
+                <Button
+                  mode="outlined"
+                  onPress={() => setConfirmVisible(true)}
+                  contentStyle={styles.actionButton}
+                  labelStyle={styles.actionLabel}
+                >
                   Удалить
                 </Button>
               </Card.Actions>
@@ -199,5 +217,19 @@ const styles = StyleSheet.create({
   cardActions: {
     flexWrap: 'wrap',
     gap: 8,
+  },
+  titleText: {
+    fontSize: 20,
+    lineHeight: 24,
+  },
+  bodyText: {
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  actionButton: {
+    paddingVertical: 6,
+  },
+  actionLabel: {
+    fontSize: 16,
   },
 });

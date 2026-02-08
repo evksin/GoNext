@@ -104,13 +104,14 @@ export default function NextPlaceScreen() {
                     : place.ddText ?? 'не указаны'}
                 </Text>
               </Card.Content>
-              <Card.Actions>
-                <Button mode="contained" onPress={handleOpenMap}>
+              <Card.Actions style={styles.cardActions}>
+                <Button mode="contained" onPress={handleOpenMap} style={styles.actionButton}>
                   Открыть на карте
                 </Button>
                 <Button
                   mode="outlined"
                   onPress={() => router.push(`/places/${place.id}`)}
+                  style={styles.actionButton}
                 >
                   Открыть место
                 </Button>
@@ -136,6 +137,14 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     gap: 6,
+  },
+  cardActions: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 8,
+  },
+  actionButton: {
+    alignSelf: 'stretch',
   },
 });
 
