@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Appbar,
@@ -33,7 +33,7 @@ export default function TripAddPlacesScreen() {
   const [statusText, setStatusText] = useState('');
   const [infoText, setInfoText] = useState('');
   const [addedSuccess, setAddedSuccess] = useState(false);
-  const buildMarker = 'build:2026-02-07-10';
+  const buildMarker = 'build:2026-02-07-11';
 
   const loadData = useCallback(async () => {
     if (!tripId || Number.isNaN(tripId)) {
@@ -132,7 +132,7 @@ export default function TripAddPlacesScreen() {
 
   return (
     <ScreenBackground>
-      <View style={styles.screen} pointerEvents="box-none">
+      <View style={styles.screen}>
         <Appbar.Header>
           <Appbar.BackAction onPress={() => router.back()} />
           <Appbar.Content title="Добавить места" />
@@ -141,31 +141,33 @@ export default function TripAddPlacesScreen() {
         <View style={styles.content}>
           <Text>{buildMarker}</Text>
           <Text>tripId: {rawId ?? 'нет'}</Text>
-          {places.length === 0 && <Text>Нет доступных мест.</Text>}
-          {places.length > 0 && (
-            <List.Section>
-              {places.map((place) => {
-                const checked = isSelected(place.id);
-                return (
-                  <List.Item
-                    key={place.id}
-                    title={place.name}
-                    description={place.description ?? 'Без описания'}
-                    onPress={() => togglePlace(place.id)}
-                    left={() => (
-                      <Checkbox
-                        status={isSelected(place.id) ? 'checked' : 'unchecked'}
-                        onPress={() => togglePlace(place.id)}
-                      />
-                    )}
-                  />
-                );
-              })}
-            </List.Section>
-          )}
+          <ScrollView contentContainerStyle={styles.listContent}>
+            {places.length === 0 && <Text>Нет доступных мест.</Text>}
+            {places.length > 0 && (
+              <List.Section>
+                {places.map((place) => {
+                  const checked = isSelected(place.id);
+                  return (
+                    <List.Item
+                      key={place.id}
+                      title={place.name}
+                      description={place.description ?? 'Без описания'}
+                      onPress={() => togglePlace(place.id)}
+                      left={() => (
+                        <Checkbox
+                          status={isSelected(place.id) ? 'checked' : 'unchecked'}
+                          onPress={() => togglePlace(place.id)}
+                        />
+                      )}
+                    />
+                  );
+                })}
+              </List.Section>
+            )}
+          </ScrollView>
         </View>
 
-        <Surface style={styles.actions} elevation={8} pointerEvents="auto">
+        <Surface style={styles.actions} elevation={4}>
           <Text>Выбрано: {selectedIds.size}</Text>
           <Text>{statusText || 'status: ожидаю'}</Text>
           {infoText ? <Text>{infoText}</Text> : null}
@@ -208,19 +210,14 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 16,
-    paddingBottom: 160,
-    zIndex: 1,
+  },
+  listContent: {
+    paddingBottom: 16,
   },
   actions: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
     padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: 'rgba(255,255,255,0.98)',
     gap: 6,
-    zIndex: 10,
-    elevation: 10,
   },
   addButton: {
     backgroundColor: '#2E7D32',
