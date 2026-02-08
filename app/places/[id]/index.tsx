@@ -13,7 +13,9 @@ import {
 } from 'react-native-paper';
 
 import { deletePlace, getPlaceById } from '../../../src/data/places';
+import { listPlaceTags } from '../../../src/data/tags';
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
+import { AppHeader } from '../../../src/components/AppHeader';
 import { Place } from '../../../src/models/types';
 
 export default function PlaceDetailsScreen() {
@@ -25,6 +27,7 @@ export default function PlaceDetailsScreen() {
   );
 
   const [place, setPlace] = useState<Place | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [confirmVisible, setConfirmVisible] = useState(false);
 
@@ -40,6 +43,7 @@ export default function PlaceDetailsScreen() {
         return;
       }
       setPlace(data);
+      setTags(await listPlaceTags(data.id));
     } catch {
       setMessage('Не удалось загрузить место.');
     }
@@ -80,17 +84,17 @@ export default function PlaceDetailsScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Место" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-          {place && (
-            <Appbar.Action
-              icon="pencil"
-              onPress={() => router.push(`/places/${place.id}/edit`)}
-            />
-          )}
-        </Appbar.Header>
+        <AppHeader
+          title="Место"
+          rightActions={
+            place ? (
+              <Appbar.Action
+                icon="pencil"
+                onPress={() => router.push(`/places/${place.id}/edit`)}
+              />
+            ) : null
+          }
+        />
 
         <View style={styles.content}>
           {place ? (
@@ -108,6 +112,9 @@ export default function PlaceDetailsScreen() {
                 </Text>
                 <Text style={styles.bodyText}>
                   Координаты: {formatCoordinates(place)}
+                </Text>
+                <Text style={styles.bodyText}>
+                  Теги: {formatTags(tags)}
                 </Text>
                 <Text style={styles.bodyText}>
                   Создано: {new Date(place.createdAt).toLocaleString()}
@@ -203,6 +210,9 @@ const formatCoordinates = (place: Place | null): string => {
   }
   return `${coords.lat}, ${coords.lng}`;
 };
+
+const formatTags = (tags: string[]): string =>
+  tags.length > 0 ? tags.join(', ') : 'нет';
 
 const styles = StyleSheet.create({
   screen: {

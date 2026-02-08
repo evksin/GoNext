@@ -17,7 +17,14 @@ import {
 } from 'react-native-paper';
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
+import { AppHeader } from '../../../src/components/AppHeader';
 import { getPlaceById } from '../../../src/data/places';
+import {
+  listTripPlaceTags,
+  listTripTags,
+  parseTagInput,
+  setTripPlaceTags,
+} from '../../../src/data/tags';
 import {
   deleteTrip,
   getTripById,
@@ -41,12 +48,14 @@ export default function TripDetailsScreen() {
   );
 
   const [trip, setTrip] = useState<Trip | null>(null);
+  const [tripTags, setTripTags] = useState<string[]>([]);
   const [items, setItems] = useState<TripPlaceView[]>([]);
   const [message, setMessage] = useState('');
   const [noteDialog, setNoteDialog] = useState<{
     id: number;
     notes: string;
     photos: string[];
+    tagsInput: string;
   } | null>(null);
   const [fullScreenPhoto, setFullScreenPhoto] = useState<string | null>(null);
   const [deleteDialogVisible, setDeleteDialogVisible] = useState(false);
@@ -63,6 +72,7 @@ export default function TripDetailsScreen() {
         return;
       }
       setTrip(data);
+      setTripTags(await listTripTags(data.id));
 
       const tripPlaces = await listTripPlaces(tripId);
       const withPlaces = await Promise.all(
@@ -101,11 +111,18 @@ export default function TripDetailsScreen() {
     loadTrip();
   };
 
-  const openNotes = (item: TripPlaceView) => {
+  const openNotes = async (item: TripPlaceView) => {
+    let tags: string[] = [];
+    try {
+      tags = await listTripPlaceTags(item.id);
+    } catch {
+      setMessage('Не удалось загрузить теги заметки.');
+    }
     setNoteDialog({
       id: item.id,
       notes: item.notes ?? '',
       photos: item.photos ?? [],
+      tagsInput: tags.join(', '),
     });
   };
 
@@ -117,6 +134,7 @@ export default function TripDetailsScreen() {
       notes: noteDialog.notes.trim() ? noteDialog.notes.trim() : null,
       photos: noteDialog.photos,
     });
+    await setTripPlaceTags(noteDialog.id, parseTagInput(noteDialog.tagsInput));
     setNoteDialog(null);
     loadTrip();
   };
@@ -185,17 +203,17 @@ export default function TripDetailsScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Поездка" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-          {trip && (
-            <Appbar.Action
-              icon="pencil"
-              onPress={() => router.push(`/trips/${trip.id}/edit`)}
-            />
-          )}
-        </Appbar.Header>
+        <AppHeader
+          title="Поездка"
+          rightActions={
+            trip ? (
+              <Appbar.Action
+                icon="pencil"
+                onPress={() => router.push(`/trips/${trip.id}/edit`)}
+              />
+            ) : null
+          }
+        />
 
         <ScrollView contentContainerStyle={styles.content}>
           {trip && (
@@ -207,6 +225,7 @@ export default function TripDetailsScreen() {
                 <Text>Начало: {trip.startDate ?? 'не указано'}</Text>
                 <Text>Окончание: {trip.endDate ?? 'не указано'}</Text>
                 <Text>Текущая: {trip.current ? 'да' : 'нет'}</Text>
+                <Text>Теги: {formatTags(tripTags)}</Text>
               </Card.Content>
               <Card.Actions style={styles.tripActions}>
                 <Button
@@ -323,6 +342,18 @@ export default function TripDetailsScreen() {
                 mode="outlined"
                 multiline
                 style={styles.dialogInput}
+              />
+              <TextInput
+                label="Теги"
+                value={noteDialog?.tagsInput ?? ''}
+                onChangeText={(value) =>
+                  setNoteDialog((prev) =>
+                    prev ? { ...prev, tagsInput: value } : prev
+                  )
+                }
+                mode="outlined"
+                style={styles.dialogInput}
+                placeholder="вид, обед, музей"
               />
               <Button mode="outlined" onPress={handleAddPhoto}>
                 Сделать фото
@@ -495,6 +526,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
 });
+
+const formatTags = (tags: string[]): string =>
+  tags.length > 0 ? tags.join(', ') : 'нет';
 
 const formatDateTime = (value: string | null): string => {
   if (!value) {

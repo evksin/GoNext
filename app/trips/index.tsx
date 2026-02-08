@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Appbar, FAB, List, Text } from 'react-native-paper';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
+import { AppHeader } from '../../src/components/AppHeader';
 import { listTrips } from '../../src/data/trips';
 import { Trip } from '../../src/models/types';
 
@@ -31,12 +32,12 @@ export default function TripsScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Поездки" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-          <Appbar.Action icon="plus" onPress={() => router.push('/trips/new')} />
-        </Appbar.Header>
+        <AppHeader
+          title="Поездки"
+          rightActions={
+            <Appbar.Action icon="plus" onPress={() => router.push('/trips/new')} />
+          }
+        />
 
         <View style={styles.content}>
           {error && <Text>{error}</Text>}

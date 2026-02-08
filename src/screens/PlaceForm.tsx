@@ -9,6 +9,7 @@ import {
 } from 'react-native-paper';
 
 import { getPlaceById, savePlace } from '../data/places';
+import { listPlaceTags, parseTagInput, setPlaceTags } from '../data/tags';
 
 type PlaceFormProps = {
   placeId?: number | null;
@@ -22,6 +23,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
   const [liked, setLiked] = useState(false);
   const [coordinates, setCoordinates] = useState('');
   const [coordsDirty, setCoordsDirty] = useState(false);
+  const [tagsInput, setTagsInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -32,6 +34,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
     setLiked(false);
     setCoordinates('');
     setCoordsDirty(false);
+    setTagsInput('');
   }, []);
 
   const loadPlace = useCallback(async () => {
@@ -54,6 +57,8 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         setCoordinates('');
       }
       setCoordsDirty(false);
+      const tags = await listPlaceTags(place.id);
+      setTagsInput(tags.join(', '));
     } catch {
       setMessage('Не удалось загрузить место.');
     }
@@ -82,7 +87,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
 
     setLoading(true);
     try {
-      await savePlace({
+      const savedId = await savePlace({
         id: placeId ?? undefined,
         name: trimmedName,
         description: description.trim() ? description.trim() : null,
@@ -93,6 +98,7 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
         ddText: coordinates.trim() ? coordinates.trim() : null,
         photos: [],
       });
+      await setPlaceTags(savedId, parseTagInput(tagsInput));
       onSaved();
     } catch {
       setMessage('Не удалось сохранить место.');
@@ -161,6 +167,14 @@ export function PlaceForm({ placeId, onSaved }: PlaceFormProps) {
               )
             : undefined
         }
+      />
+
+      <TextInput
+        label="Теги"
+        value={tagsInput}
+        onChangeText={setTagsInput}
+        mode="outlined"
+        placeholder="музей, прогулка, еда"
       />
 
       <Button

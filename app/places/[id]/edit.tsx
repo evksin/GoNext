@@ -1,8 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Appbar, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
+import { AppHeader } from '../../../src/components/AppHeader';
 import { PlaceForm } from '../../../src/screens/PlaceForm';
 
 export default function PlaceEditScreen() {
@@ -14,11 +15,7 @@ export default function PlaceEditScreen() {
     return (
       <ScreenBackground>
         <View style={styles.screen}>
-          <Appbar.Header>
-            <Appbar.BackAction onPress={() => router.back()} />
-            <Appbar.Content title="Редактирование" />
-            <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-          </Appbar.Header>
+          <AppHeader title="Редактирование" />
           <View style={styles.center}>
             <Text>Некорректный идентификатор места.</Text>
           </View>
@@ -30,11 +27,7 @@ export default function PlaceEditScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Редактирование места" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-        </Appbar.Header>
+        <AppHeader title="Редактирование места" />
 
         <PlaceForm placeId={placeId} onSaved={() => router.back()} />
       </View>

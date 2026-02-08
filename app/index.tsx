@@ -1,8 +1,9 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Appbar, Button } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 
 import { ScreenBackground } from '../src/components/ScreenBackground';
+import { AppHeader } from '../src/components/AppHeader';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -10,9 +11,7 @@ export default function HomeScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.Content title="GoNext" />
-        </Appbar.Header>
+        <AppHeader title="GoNext" showBack={false} showHome={false} />
 
         <View style={styles.content}>
           <Button
@@ -42,6 +41,13 @@ export default function HomeScreen() {
             style={styles.button}
           >
             Настройки
+          </Button>
+          <Button
+            mode="contained"
+            onPress={() => router.push('/search')}
+            style={styles.button}
+          >
+            Поиск
           </Button>
         </View>
       </View>

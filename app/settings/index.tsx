@@ -1,20 +1,14 @@
 import { StyleSheet, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Appbar, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
+import { AppHeader } from '../../src/components/AppHeader';
 
 export default function SettingsScreen() {
-  const router = useRouter();
-
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Настройки" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-        </Appbar.Header>
+        <AppHeader title="Настройки" />
 
         <View style={styles.content}>
           <Text>Экран настроек будет добавлен позже.</Text>

@@ -2,9 +2,10 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { Appbar, Button, Card, Text } from 'react-native-paper';
+import { Button, Card, Text } from 'react-native-paper';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
+import { AppHeader } from '../../src/components/AppHeader';
 import { getPlaceById } from '../../src/data/places';
 import { getCurrentTrip, getNextTripPlace } from '../../src/data/trips';
 import { Place, Trip, TripPlace } from '../../src/models/types';
@@ -62,11 +63,7 @@ export default function NextPlaceScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Следующее место" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-        </Appbar.Header>
+        <AppHeader title="Следующее место" />
 
         <View style={styles.content}>
           {message && <Text>{message}</Text>}

@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import {
-  Appbar,
   Button,
   Checkbox,
   List,
@@ -11,6 +10,7 @@ import {
 } from 'react-native-paper';
 
 import { ScreenBackground } from '../../../src/components/ScreenBackground';
+import { AppHeader } from '../../../src/components/AppHeader';
 import { listPlaces } from '../../../src/data/places';
 import {
   addPlaceToTrip,
@@ -101,11 +101,7 @@ export default function TripAddPlacesScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Добавить места" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-        </Appbar.Header>
+        <AppHeader title="Добавить места" />
 
         <View style={styles.content}>
           <View style={styles.actionBar}>

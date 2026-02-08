@@ -12,6 +12,7 @@ import {
 } from 'react-native-paper';
 
 import { getTripById, saveTrip } from '../data/trips';
+import { listTripTags, parseTagInput, setTripTags } from '../data/tags';
 
 type TripFormProps = {
   tripId?: number | null;
@@ -24,6 +25,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [current, setCurrent] = useState(false);
+  const [tagsInput, setTagsInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [picker, setPicker] = useState<{
@@ -52,6 +54,8 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
       setStartDate(trip.startDate ?? '');
       setEndDate(trip.endDate ?? '');
       setCurrent(trip.current);
+      const tags = await listTripTags(trip.id);
+      setTagsInput(tags.join(', '));
     } catch {
       setMessage('Не удалось загрузить поездку.');
     }
@@ -70,7 +74,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
 
     setLoading(true);
     try {
-      await saveTrip({
+      const savedId = await saveTrip({
         id: tripId ?? undefined,
         title: trimmedTitle,
         description: description.trim() ? description.trim() : null,
@@ -78,6 +82,7 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
         endDate: endDate.trim() ? endDate.trim() : null,
         current,
       });
+      await setTripTags(savedId, parseTagInput(tagsInput));
       onSaved();
     } catch {
       setMessage('Не удалось сохранить поездку.');
@@ -146,6 +151,14 @@ export function TripForm({ tripId, onSaved }: TripFormProps) {
         <Text>Текущая поездка</Text>
         <Switch value={current} onValueChange={setCurrent} />
       </View>
+
+      <TextInput
+        label="Теги"
+        value={tagsInput}
+        onChangeText={setTagsInput}
+        mode="outlined"
+        placeholder="тур, зима, семья"
+      />
 
       <Button
         mode="contained"

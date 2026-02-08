@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Appbar } from 'react-native-paper';
+import { AppHeader } from '../../src/components/AppHeader';
 
 import { ScreenBackground } from '../../src/components/ScreenBackground';
 import { PlaceForm } from '../../src/screens/PlaceForm';
@@ -11,11 +11,7 @@ export default function PlaceCreateScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Новое место" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-        </Appbar.Header>
+        <AppHeader title="Новое место" />
 
         <PlaceForm onSaved={() => router.back()} />
       </View>

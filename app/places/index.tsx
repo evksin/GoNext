@@ -12,6 +12,7 @@ import {
 import { listPlaces } from '../../src/data/places';
 import { Place } from '../../src/models/types';
 import { ScreenBackground } from '../../src/components/ScreenBackground';
+import { AppHeader } from '../../src/components/AppHeader';
 
 export default function PlacesListScreen() {
   const router = useRouter();
@@ -41,15 +42,15 @@ export default function PlacesListScreen() {
   return (
     <ScreenBackground>
       <View style={styles.screen}>
-        <Appbar.Header>
-          <Appbar.BackAction onPress={() => router.back()} />
-          <Appbar.Content title="Места" />
-          <Appbar.Action icon="home" onPress={() => router.replace('/')} />
-          <Appbar.Action
-            icon="plus"
-            onPress={() => router.push('/places/new')}
-          />
-        </Appbar.Header>
+        <AppHeader
+          title="Места"
+          rightActions={
+            <Appbar.Action
+              icon="plus"
+              onPress={() => router.push('/places/new')}
+            />
+          }
+        />
 
         <View style={styles.content}>
           {loading && <ActivityIndicator />}
