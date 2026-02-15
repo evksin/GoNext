@@ -1,145 +1,126 @@
-🧠 GoNext — AI-Ready Mobile App Starter
+🧠 Новый README для GoNext
 
-Production-grade Expo + React Native starter for building AI-powered apps fast.
+Скопируй всё ниже → вставь в README.md → Commit → Push.
 
-GoNext is a clean, modern, and scalable mobile application starter built with Expo Router, TypeScript and React Native Paper — designed for developers and founders who want to launch products quickly.
+# GoNext ⚡
 
-It’s optimized for:
+A modern **Expo + TypeScript starter** for building fast, beautiful and scalable React Native apps.
 
-SaaS apps
+GoNext is designed for founders, indie hackers and developers who want to go from idea to mobile app **without boilerplate pain**.
 
-AI assistants
+---
 
-Startup MVPs
+## ✨ What is GoNext?
 
-Mobile-first products
+GoNext is a clean and minimal React Native template built with:
 
-🚀 What is GoNext?
+- Expo Router
+- TypeScript
+- React Native Paper
+- Modern project structure
+- Ready-to-run setup
 
-GoNext is not just a template — it’s a mobile startup foundation.
+It gives you a solid foundation to start building a real product — not just a demo.
 
-It gives you:
+---
 
-Navigation
+## 🚀 Why GoNext?
 
-UI system
+Most templates are either:
+- Too simple
+- Or too bloated
 
-Theming
+GoNext is optimized for:
+- MVPs
+- Startup prototypes
+- Indie projects
+- Real mobile apps
 
-Architecture
+You get:
+- Routing
+- UI system
+- Type safety
+- Expo tooling
+- Clean architecture
 
-Ready-to-connect AI & API layer
+Out of the box.
 
-So you can focus on building your product, not boilerplate.
+---
 
-✨ Features
+## 🧩 Features
 
-📱 Expo Router navigation (file-based routing)
+- 🧭 App Router powered by Expo Router
+- 🎨 UI with React Native Paper
+- ⚡ Fast development with Expo
+- 🛡 TypeScript for safety
+- 📱 Android, iOS & Web support
+- 🧱 Clean project structure
+- 🚀 Ready for production
 
-🎨 React Native Paper UI system
+---
 
-🌗 Dark & light theme support
+## 🛠 Tech Stack
 
-🔐 Ready for auth integration
+- **Expo**
+- **React Native**
+- **TypeScript**
+- **Expo Router**
+- **React Native Paper**
 
-🌍 API-ready architecture
+---
 
-⚡ Fast dev experience with Expo
+## 🧪 Getting Started
 
-🧠 Designed for AI & SaaS apps
-
-🛠 Tech Stack
-
-Expo Router
-
-React Native
-
-TypeScript
-
-React Native Paper
-
-Expo SDK
-
-Cross-platform (iOS, Android, Web)
-
-📦 Project Structure
-app/
-  (tabs)/
-  index.tsx       # Home screen
-  _layout.tsx     # Navigation layout
-components/
-  ui/
-  layout/
-lib/
-  api.ts          # API layer (ready for AI, backend)
-  theme.ts        # Global theming
-
-🧪 Demo Screens
-
-Home screen with AppBar
-
-Material Design UI
-
-Snackbar feedback
-
-Responsive layout
-
-⚡ Quick Start
-1. Install dependencies
+### 1️⃣ Install dependencies
+```bash
 npm install --legacy-peer-deps
 
-2. Start Expo
+2️⃣ Start the app
 npx expo start
 
 
-Scan QR with Expo Go or run on emulator.
+You can open it in:
 
-📜 Scripts
-npm run start
-npm run android
-npm run ios
-npm run web
+Android emulator
 
-🧠 Designed for AI Apps
+iOS simulator
 
-GoNext is built to easily connect with:
+Expo Go
 
-OpenAI
+Web browser
 
-OpenRouter
+📂 Project Structure
+app/
+  ├─ index.tsx      → Home screen
+  ├─ _layout.tsx    → App layout
+components/
+theme/
+assets/
 
-Custom AI backends
 
-SaaS APIs
+The structure is ready to scale into a real product.
 
-Perfect for:
+🧠 Who is this for?
 
-AI chat apps
+GoNext is perfect for:
 
-Productivity tools
+Startup founders
 
-Assistants
+Indie hackers
 
-Smart dashboards
+React developers moving to mobile
 
-🧩 Why GoNext exists
+Hackathon teams
 
-Most templates are either:
+MVP builders
 
-Too simple
+If you want to launch something fast — this is your base.
 
-Too bloated
+📄 License
 
-Not startup-ready
+MIT — free to use, modify and ship.
 
-GoNext is:
+🌟 Author
 
-The middle ground between a template and a real product foundation.
-
-🧑‍💻 Author
-
-Built by evksin — AI engineer & startup builder.
-
-🪪 License
-
-MIT — free to use, build and ship.
+Built by evksin
+Telecommunications Engineer & AI-focused developer
