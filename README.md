@@ -1,7 +1,3 @@
-🧠 Новый README для GoNext
-
-Скопируй всё ниже → вставь в README.md → Commit → Push.
-
 # GoNext ⚡
 
 A modern **Expo + TypeScript starter** for building fast, beautiful and scalable React Native apps.
