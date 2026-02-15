@@ -1,4 +1,11 @@
 <p align="center">
+  <img src="https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo&logoColor=white"/>
+  <img src="https://img.shields.io/badge/React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"/>
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Mobile%20First-0A0A0A?style=for-the-badge"/>
+</p>
+
+<p align="center">
   <img src="screenshots/home.jpg" width="580"/>
   <img src="screenshots/search.jpg" width="580"/>
   <img src="screenshots/settings.jpg" width="580"/>
