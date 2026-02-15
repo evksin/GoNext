@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="screenshots/home.jpg" width="580"/>
+  <img src="screenshots/search.jpg" width="580"/>
+  <img src="screenshots/settings.jpg" width="580"/>
+</p>
+
 # GoNext ⚡
 
 A modern **Expo + TypeScript starter** for building fast, beautiful and scalable React Native apps.
